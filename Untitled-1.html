@@ -1,0 +1,3095 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vertex AI (Mak) — Premium Agency</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://cdn.jsdelivr.net/npm/@fontsource/inter@5.1.0/index.min.css" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollToPlugin.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<style>
+:root {
+--primary: #0ea5e9;
+--primary-light: #38bdf8;
+--primary-dark: #0369a1;
+--accent: #6366f1;
+--accent-glow: rgba(99,102,241,0.4);
+--neon-blue: #00d4ff;
+--neon-purple: #8b5cf6;
+--bg-dark: #0a0e1a;
+--bg-dark-2: #111827;
+--bg-dark-3: #1a2235;
+--bg-card-dark: rgba(17,24,39,0.7);
+--bg-card-glass: rgba(17,24,39,0.5);
+--text-dark: #e2e8f0;
+--text-dark-secondary: #94a3b8;
+--text-dark-heading: #f1f5f9;
+--border-dark: rgba(14,165,233,0.15);
+--shadow-dark: 0 25px 50px rgba(0,0,0,0.5);
+--bg-light: #f8fafc;
+--bg-light-2: #f1f5f9;
+--bg-light-3: #e2e8f0;
+--bg-card-light: rgba(255,255,255,0.8);
+--bg-card-glass-light: rgba(255,255,255,0.6);
+--text-light: #1e293b;
+--text-light-secondary: #64748b;
+--text-light-heading: #0f172a;
+--border-light: rgba(14,165,233,0.2);
+--shadow-light: 0 25px 50px rgba(0,0,0,0.1);
+--glass-blur: 20px;
+--transition: 0.4s cubic-bezier(0.4,0,0.2,1);
+--radius: 16px;
+--radius-sm: 10px;
+--radius-xs: 6px;
+}
+
+[data-theme="dark"] {
+--bg: var(--bg-dark);
+--bg-2: var(--bg-dark-2);
+--bg-3: var(--bg-dark-3);
+--bg-card: var(--bg-card-dark);
+--bg-glass: var(--bg-card-glass);
+--text: var(--text-dark);
+--text-secondary: var(--text-dark-secondary);
+--text-heading: var(--text-dark-heading);
+--border: var(--border-dark);
+--shadow: var(--shadow-dark);
+}
+
+[data-theme="light"] {
+--bg: var(--bg-light);
+--bg-2: var(--bg-light-2);
+--bg-3: var(--bg-light-3);
+--bg-card: var(--bg-card-light);
+--bg-glass: var(--bg-card-glass-light);
+--text: var(--text-light);
+--text-secondary: var(--text-light-secondary);
+--text-heading: var(--text-light-heading);
+--border: var(--border-light);
+--shadow: var(--shadow-light);
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+html {
+scroll-behavior: smooth;
+font-size: 16px;
+}
+
+body {
+font-family: 'Inter', sans-serif;
+background: var(--bg);
+color: var(--text);
+overflow-x: hidden;
+transition: background var(--transition), color var(--transition);
+line-height: 1.7;
+}
+
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: var(--bg-2); }
+::-webkit-scrollbar-thumb {
+background: linear-gradient(var(--primary), var(--accent));
+border-radius: 10px;
+}
+
+/* Preloader */
+#preloader {
+position: fixed;
+inset: 0;
+z-index: 10000;
+background: var(--bg-dark);
+display: flex;
+align-items: center;
+justify-content: center;
+flex-direction: column;
+}
+
+.preloader-logo {
+font-size: clamp(1.8rem, 5vw, 3.5rem);
+font-weight: 800;
+background: linear-gradient(135deg, var(--primary), var(--accent), var(--neon-blue));
+-webkit-background-clip: text;
+-webkit-text-fill-color: transparent;
+background-clip: text;
+letter-spacing: 2px;
+opacity: 0;
+}
+
+.preloader-sub {
+font-size: 0.9rem;
+color: var(--text-dark-secondary);
+margin-top: 10px;
+opacity: 0;
+letter-spacing: 4px;
+text-transform: uppercase;
+}
+
+.preloader-bar {
+width: 200px;
+height: 3px;
+background: var(--bg-dark-3);
+border-radius: 10px;
+margin-top: 30px;
+overflow: hidden;
+opacity: 0;
+}
+
+.preloader-bar-inner {
+width: 0%;
+height: 100%;
+background: linear-gradient(90deg, var(--primary), var(--accent));
+border-radius: 10px;
+}
+
+/* Three.js Canvas */
+#three-canvas {
+position: fixed;
+inset: 0;
+z-index: 0;
+pointer-events: none;
+}
+
+/* Scroll Progress */
+#scroll-progress {
+position: fixed;
+top: 0;
+left: 0;
+height: 3px;
+background: linear-gradient(90deg, var(--primary), var(--accent), var(--neon-blue));
+z-index: 9999;
+width: 0%;
+transition: none;
+}
+
+/* Navbar */
+.navbar {
+position: fixed;
+top: 0;
+left: 0;
+right: 0;
+z-index: 1000;
+padding: 15px 0;
+transition: transform 0.5s cubic-bezier(0.4,0,0.2,1), background 0.3s, padding 0.3s;
+}
+
+.navbar.hidden { transform: translateY(-100%); }
+
+.navbar.scrolled {
+background: var(--bg-glass);
+backdrop-filter: blur(var(--glass-blur));
+-webkit-backdrop-filter: blur(var(--glass-blur));
+border-bottom: 1px solid var(--border);
+padding: 10px 0;
+}
+
+.nav-container {
+max-width: 1280px;
+margin: 0 auto;
+padding: 0 24px;
+display: flex;
+align-items: center;
+justify-content: space-between;
+}
+
+.nav-logo {
+font-size: 1.4rem;
+font-weight: 800;
+background: linear-gradient(135deg, var(--primary), var(--accent));
+-webkit-background-clip: text;
+-webkit-text-fill-color: transparent;
+background-clip: text;
+text-decoration: none;
+letter-spacing: 1px;
+}
+
+.nav-logo span {
+font-weight: 400;
+font-size: 0.8rem;
+-webkit-text-fill-color: var(--text-secondary);
+margin-left: 4px;
+}
+
+.nav-links {
+display: flex;
+align-items: center;
+gap: 32px;
+list-style: none;
+}
+
+.nav-links a {
+color: var(--text-secondary);
+text-decoration: none;
+font-size: 0.9rem;
+font-weight: 500;
+transition: color var(--transition);
+position: relative;
+}
+
+.nav-links a::after {
+content: '';
+position: absolute;
+bottom: -4px;
+left: 0;
+width: 0;
+height: 2px;
+background: linear-gradient(90deg, var(--primary), var(--accent));
+transition: width var(--transition);
+}
+
+.nav-links a:hover { color: var(--primary); }
+.nav-links a:hover::after { width: 100%; }
+
+.nav-actions {
+display: flex;
+align-items: center;
+gap: 16px;
+}
+
+.theme-toggle {
+width: 44px;
+height: 44px;
+border-radius: 50%;
+border: 1px solid var(--border);
+background: var(--bg-glass);
+backdrop-filter: blur(10px);
+cursor: pointer;
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 1.2rem;
+transition: all var(--transition);
+color: var(--text);
+}
+
+.theme-toggle:hover {
+border-color: var(--primary);
+box-shadow: 0 0 20px var(--accent-glow);
+transform: rotate(180deg);
+}
+
+.mobile-toggle {
+display: none;
+flex-direction: column;
+gap: 5px;
+cursor: pointer;
+padding: 8px;
+z-index: 1001;
+}
+
+.mobile-toggle span {
+width: 24px;
+height: 2px;
+background: var(--text);
+transition: all 0.3s;
+border-radius: 2px;
+}
+
+.mobile-toggle.active span:nth-child(1) { transform: rotate(45deg) translate(5px,5px); }
+.mobile-toggle.active span:nth-child(2) { opacity: 0; }
+.mobile-toggle.active span:nth-child(3) { transform: rotate(-45deg) translate(5px,-5px); }
+
+.mobile-menu {
+display: none;
+position: fixed;
+inset: 0;
+background: var(--bg-glass);
+backdrop-filter: blur(30px);
+-webkit-backdrop-filter: blur(30px);
+z-index: 999;
+flex-direction: column;
+align-items: center;
+justify-content: center;
+gap: 28px;
+}
+
+.mobile-menu.active { display: flex; }
+
+.mobile-menu a {
+color: var(--text);
+text-decoration: none;
+font-size: 1.5rem;
+font-weight: 600;
+transition: color 0.3s;
+}
+
+.mobile-menu a:hover { color: var(--primary); }
+
+/* Hero */
+.hero {
+min-height: 100vh;
+display: flex;
+align-items: center;
+position: relative;
+z-index: 1;
+padding: 120px 24px 80px;
+overflow: hidden;
+}
+
+.hero-container {
+max-width: 1280px;
+margin: 0 auto;
+width: 100%;
+display: grid;
+grid-template-columns: 1fr 1fr;
+gap: 60px;
+align-items: center;
+}
+
+.hero-content { position: relative; z-index: 2; }
+
+.hero-badge {
+display: inline-flex;
+align-items: center;
+gap: 8px;
+padding: 8px 18px;
+background: var(--bg-glass);
+border: 1px solid var(--border);
+border-radius: 50px;
+font-size: 0.8rem;
+color: var(--primary);
+font-weight: 600;
+margin-bottom: 24px;
+backdrop-filter: blur(10px);
+}
+
+.hero-badge .dot {
+width: 8px;
+height: 8px;
+background: #22c55e;
+border-radius: 50%;
+animation: pulse-dot 2s infinite;
+}
+
+@keyframes pulse-dot {
+0%, 100% { opacity: 1; transform: scale(1); }
+50% { opacity: 0.5; transform: scale(1.5); }
+}
+
+.hero-title {
+font-size: clamp(2.2rem, 5vw, 4rem);
+font-weight: 800;
+color: var(--text-heading);
+line-height: 1.1;
+margin-bottom: 20px;
+}
+
+.hero-title .gradient-text {
+background: linear-gradient(135deg, var(--primary), var(--accent), var(--neon-blue));
+-webkit-background-clip: text;
+-webkit-text-fill-color: transparent;
+background-clip: text;
+}
+
+.hero-desc {
+font-size: 1.1rem;
+color: var(--text-secondary);
+max-width: 520px;
+margin-bottom: 36px;
+line-height: 1.8;
+}
+
+.hero-buttons {
+display: flex;
+gap: 16px;
+flex-wrap: wrap;
+}
+
+.btn {
+display: inline-flex;
+align-items: center;
+gap: 8px;
+padding: 14px 32px;
+border-radius: 50px;
+font-size: 0.95rem;
+font-weight: 600;
+text-decoration: none;
+cursor: pointer;
+border: none;
+transition: all var(--transition);
+font-family: 'Inter', sans-serif;
+}
+
+.btn-primary {
+background: linear-gradient(135deg, var(--primary), var(--accent));
+color: #fff;
+box-shadow: 0 8px 30px rgba(14,165,233,0.3);
+}
+
+.btn-primary:hover {
+transform: translateY(-3px);
+box-shadow: 0 12px 40px rgba(14,165,233,0.5);
+}
+
+.btn-outline {
+background: transparent;
+color: var(--text);
+border: 1px solid var(--border);
+backdrop-filter: blur(10px);
+}
+
+.btn-outline:hover {
+border-color: var(--primary);
+color: var(--primary);
+transform: translateY(-3px);
+box-shadow: 0 8px 30px var(--accent-glow);
+}
+
+.hero-visual {
+position: relative;
+display: flex;
+align-items: center;
+justify-content: center;
+}
+
+.hero-image-wrapper {
+position: relative;
+width: 100%;
+max-width: 500px;
+aspect-ratio: 4/5;
+border-radius: var(--radius);
+overflow: hidden;
+}
+
+.hero-image-wrapper img {
+width: 100%;
+height: 100%;
+object-fit: cover;
+}
+
+.hero-image-wrapper::after {
+content: '';
+position: absolute;
+inset: 0;
+background: linear-gradient(180deg, transparent 50%, var(--bg) 100%);
+pointer-events: none;
+}
+
+.hero-glow {
+position: absolute;
+width: 400px;
+height: 400px;
+background: radial-gradient(circle, rgba(14,165,233,0.2) 0%, transparent 70%);
+border-radius: 50%;
+top: 50%;
+left: 50%;
+transform: translate(-50%,-50%);
+z-index: -1;
+animation: float-glow 6s ease-in-out infinite;
+}
+
+@keyframes float-glow {
+0%, 100% { transform: translate(-50%,-50%) scale(1); opacity: 0.6; }
+50% { transform: translate(-50%,-50%) scale(1.2); opacity: 1; }
+}
+
+.hero-stats {
+display: flex;
+gap: 40px;
+margin-top: 48px;
+}
+
+.stat-item { text-align: left; }
+
+.stat-number {
+font-size: 2rem;
+font-weight: 800;
+color: var(--primary);
+display: block;
+}
+
+.stat-label {
+font-size: 0.8rem;
+color: var(--text-secondary);
+text-transform: uppercase;
+letter-spacing: 1px;
+}
+
+/* Section Common */
+.section {
+position: relative;
+z-index: 1;
+padding: 100px 24px;
+}
+
+.section-container {
+max-width: 1280px;
+margin: 0 auto;
+}
+
+.section-header {
+text-align: center;
+margin-bottom: 64px;
+}
+
+.section-label {
+display: inline-block;
+padding: 6px 16px;
+background: var(--bg-glass);
+border: 1px solid var(--border);
+border-radius: 50px;
+font-size: 0.8rem;
+color: var(--primary);
+font-weight: 600;
+letter-spacing: 2px;
+text-transform: uppercase;
+margin-bottom: 16px;
+backdrop-filter: blur(10px);
+}
+
+.section-title {
+font-size: clamp(2rem, 4vw, 3rem);
+font-weight: 800;
+color: var(--text-heading);
+margin-bottom: 16px;
+line-height: 1.2;
+}
+
+.section-desc {
+font-size: 1.05rem;
+color: var(--text-secondary);
+max-width: 600px;
+margin: 0 auto;
+}
+
+/* Glass Card */
+.glass-card {
+background: var(--bg-glass);
+backdrop-filter: blur(var(--glass-blur));
+-webkit-backdrop-filter: blur(var(--glass-blur));
+border: 1px solid var(--border);
+border-radius: var(--radius);
+padding: 32px;
+transition: all var(--transition);
+}
+
+.glass-card:hover {
+border-color: var(--primary);
+box-shadow: 0 0 40px var(--accent-glow);
+transform: translateY(-5px);
+}
+
+/* About */
+.about-grid {
+display: grid;
+grid-template-columns: 1fr 1fr;
+gap: 60px;
+align-items: center;
+}
+
+.about-image-section {
+position: relative;
+}
+
+.about-image {
+width: 100%;
+border-radius: var(--radius);
+overflow: hidden;
+position: relative;
+}
+
+.about-image img {
+width: 100%;
+height: 500px;
+object-fit: cover;
+display: block;
+}
+
+.about-image-accent {
+position: absolute;
+bottom: -20px;
+right: -20px;
+width: 200px;
+height: 200px;
+background: linear-gradient(135deg, var(--primary), var(--accent));
+border-radius: var(--radius);
+z-index: -1;
+opacity: 0.3;
+}
+
+.about-content h3 {
+font-size: 1.6rem;
+font-weight: 700;
+color: var(--text-heading);
+margin-bottom: 16px;
+}
+
+.about-content p {
+color: var(--text-secondary);
+margin-bottom: 24px;
+font-size: 0.95rem;
+}
+
+.skills-grid {
+display: grid;
+grid-template-columns: 1fr 1fr;
+gap: 16px;
+margin-top: 24px;
+}
+
+.skill-item {
+display: flex;
+align-items: center;
+gap: 12px;
+padding: 12px 16px;
+background: var(--bg-glass);
+border: 1px solid var(--border);
+border-radius: var(--radius-sm);
+backdrop-filter: blur(10px);
+}
+
+.skill-icon {
+width: 36px;
+height: 36px;
+border-radius: 8px;
+background: linear-gradient(135deg, var(--primary), var(--accent));
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 1rem;
+flex-shrink: 0;
+}
+
+.skill-name {
+font-size: 0.85rem;
+font-weight: 600;
+color: var(--text-heading);
+}
+
+.experience-bar {
+margin-top: 24px;
+}
+
+.exp-item {
+margin-bottom: 16px;
+}
+
+.exp-header {
+display: flex;
+justify-content: space-between;
+margin-bottom: 8px;
+}
+
+.exp-label {
+font-size: 0.85rem;
+font-weight: 600;
+color: var(--text-heading);
+}
+
+.exp-percent {
+font-size: 0.85rem;
+color: var(--primary);
+font-weight: 600;
+}
+
+.exp-track {
+height: 6px;
+background: var(--bg-3);
+border-radius: 10px;
+overflow: hidden;
+}
+
+.exp-fill {
+height: 100%;
+background: linear-gradient(90deg, var(--primary), var(--accent));
+border-radius: 10px;
+width: 0%;
+transition: width 1.5s cubic-bezier(0.4,0,0.2,1);
+}
+
+/* Services */
+.services-grid {
+display: grid;
+grid-template-columns: repeat(3, 1fr);
+gap: 28px;
+}
+
+.service-card {
+position: relative;
+overflow: hidden;
+cursor: pointer;
+}
+
+.service-card-image {
+width: 100%;
+height: 220px;
+object-fit: cover;
+border-radius: var(--radius-sm);
+margin-bottom: 20px;
+}
+
+.service-icon {
+width: 56px;
+height: 56px;
+border-radius: 14px;
+background: linear-gradient(135deg, var(--primary), var(--accent));
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 1.5rem;
+margin-bottom: 20px;
+box-shadow: 0 8px 24px rgba(14,165,233,0.3);
+}
+
+.service-card h3 {
+font-size: 1.3rem;
+font-weight: 700;
+color: var(--text-heading);
+margin-bottom: 12px;
+}
+
+.service-card p {
+font-size: 0.9rem;
+color: var(--text-secondary);
+margin-bottom: 20px;
+line-height: 1.7;
+}
+
+.service-features {
+list-style: none;
+margin-bottom: 24px;
+}
+
+.service-features li {
+display: flex;
+align-items: center;
+gap: 10px;
+font-size: 0.85rem;
+color: var(--text-secondary);
+padding: 6px 0;
+}
+
+.service-features li .check {
+color: #22c55e;
+font-weight: 700;
+}
+
+.service-tools {
+display: flex;
+flex-wrap: wrap;
+gap: 8px;
+margin-bottom: 20px;
+}
+
+.tool-tag {
+padding: 4px 12px;
+background: var(--bg-3);
+border-radius: 50px;
+font-size: 0.75rem;
+color: var(--primary);
+font-weight: 500;
+border: 1px solid var(--border);
+}
+
+.process-steps {
+margin-top: 24px;
+padding-top: 24px;
+border-top: 1px solid var(--border);
+}
+
+.process-steps h4 {
+font-size: 0.9rem;
+font-weight: 700;
+color: var(--text-heading);
+margin-bottom: 16px;
+}
+
+.step {
+display: flex;
+gap: 12px;
+margin-bottom: 12px;
+}
+
+.step-num {
+width: 28px;
+height: 28px;
+border-radius: 50%;
+background: linear-gradient(135deg, var(--primary), var(--accent));
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 0.75rem;
+font-weight: 700;
+color: #fff;
+flex-shrink: 0;
+}
+
+.step-text {
+font-size: 0.8rem;
+color: var(--text-secondary);
+padding-top: 4px;
+}
+
+/* Service Deep Dive */
+.service-deep {
+display: none;
+position: fixed;
+inset: 0;
+z-index: 2000;
+background: var(--bg-glass);
+backdrop-filter: blur(30px);
+-webkit-backdrop-filter: blur(30px);
+overflow-y: auto;
+padding: 80px 24px;
+}
+
+.service-deep.active { display: block; }
+
+.service-deep-close {
+position: fixed;
+top: 24px;
+right: 24px;
+width: 48px;
+height: 48px;
+border-radius: 50%;
+background: var(--bg-glass);
+border: 1px solid var(--border);
+color: var(--text);
+font-size: 1.5rem;
+cursor: pointer;
+display: flex;
+align-items: center;
+justify-content: center;
+z-index: 2001;
+transition: all 0.3s;
+}
+
+.service-deep-close:hover {
+border-color: var(--primary);
+transform: rotate(90deg);
+}
+
+.service-deep-content {
+max-width: 900px;
+margin: 0 auto;
+}
+
+.service-deep-content h2 {
+font-size: 2.5rem;
+font-weight: 800;
+color: var(--text-heading);
+margin-bottom: 16px;
+}
+
+.service-deep-content .deep-desc {
+font-size: 1.05rem;
+color: var(--text-secondary);
+margin-bottom: 40px;
+line-height: 1.8;
+}
+
+.deep-section {
+margin-bottom: 40px;
+}
+
+.deep-section h3 {
+font-size: 1.3rem;
+font-weight: 700;
+color: var(--text-heading);
+margin-bottom: 16px;
+display: flex;
+align-items: center;
+gap: 10px;
+}
+
+.deep-section p {
+color: var(--text-secondary);
+font-size: 0.95rem;
+line-height: 1.8;
+}
+
+/* Portfolio */
+.portfolio-filters {
+display: flex;
+justify-content: center;
+gap: 12px;
+margin-bottom: 48px;
+flex-wrap: wrap;
+}
+
+.filter-btn {
+padding: 10px 24px;
+border-radius: 50px;
+border: 1px solid var(--border);
+background: var(--bg-glass);
+color: var(--text-secondary);
+font-size: 0.85rem;
+font-weight: 600;
+cursor: pointer;
+transition: all var(--transition);
+backdrop-filter: blur(10px);
+font-family: 'Inter', sans-serif;
+}
+
+.filter-btn.active, .filter-btn:hover {
+background: linear-gradient(135deg, var(--primary), var(--accent));
+color: #fff;
+border-color: transparent;
+box-shadow: 0 4px 20px rgba(14,165,233,0.3);
+}
+
+.portfolio-grid {
+display: grid;
+grid-template-columns: repeat(3, 1fr);
+gap: 28px;
+}
+
+.portfolio-card {
+cursor: pointer;
+overflow: hidden;
+}
+
+.portfolio-card-image {
+width: 100%;
+height: 240px;
+object-fit: cover;
+border-radius: var(--radius-sm);
+margin-bottom: 16px;
+transition: transform 0.5s;
+}
+
+.portfolio-card:hover .portfolio-card-image {
+transform: scale(1.05);
+}
+
+.portfolio-card h4 {
+font-size: 1.05rem;
+font-weight: 700;
+color: var(--text-heading);
+margin-bottom: 6px;
+}
+
+.portfolio-card .card-category {
+font-size: 0.8rem;
+color: var(--primary);
+font-weight: 600;
+margin-bottom: 8px;
+}
+
+.portfolio-card p {
+font-size: 0.85rem;
+color: var(--text-secondary);
+}
+
+/* Case Study Modal */
+.case-study {
+display: none;
+position: fixed;
+inset: 0;
+z-index: 3000;
+background: var(--bg);
+overflow-y: auto;
+}
+
+.case-study.active { display: block; }
+
+.case-study-header {
+position: relative;
+height: 400px;
+overflow: hidden;
+}
+
+.case-study-header img {
+width: 100%;
+height: 100%;
+object-fit: cover;
+}
+
+.case-study-header::after {
+content: '';
+position: absolute;
+inset: 0;
+background: linear-gradient(180deg, transparent 30%, var(--bg) 100%);
+}
+
+.case-study-close {
+position: fixed;
+top: 24px;
+right: 24px;
+z-index: 3001;
+}
+
+.case-study-body {
+max-width: 900px;
+margin: -80px auto 0;
+position: relative;
+z-index: 2;
+padding: 0 24px 80px;
+}
+
+.case-study-body h1 {
+font-size: 2.5rem;
+font-weight: 800;
+color: var(--text-heading);
+margin-bottom: 12px;
+}
+
+.cs-meta {
+display: flex;
+gap: 24px;
+margin-bottom: 40px;
+flex-wrap: wrap;
+}
+
+.cs-meta-item {
+display: flex;
+align-items: center;
+gap: 8px;
+font-size: 0.85rem;
+color: var(--text-secondary);
+}
+
+.cs-meta-item .label {
+color: var(--primary);
+font-weight: 600;
+}
+
+.kpi-grid {
+display: grid;
+grid-template-columns: repeat(4, 1fr);
+gap: 16px;
+margin-bottom: 48px;
+}
+
+.kpi-card {
+text-align: center;
+padding: 24px 16px;
+}
+
+.kpi-value {
+font-size: 2rem;
+font-weight: 800;
+color: var(--primary);
+display: block;
+}
+
+.kpi-label {
+font-size: 0.8rem;
+color: var(--text-secondary);
+margin-top: 4px;
+}
+
+.cs-section {
+margin-bottom: 40px;
+}
+
+.cs-section h2 {
+font-size: 1.5rem;
+font-weight: 700;
+color: var(--text-heading);
+margin-bottom: 12px;
+padding-left: 16px;
+border-left: 3px solid var(--primary);
+}
+
+.cs-section p {
+color: var(--text-secondary);
+font-size: 0.95rem;
+line-height: 1.8;
+}
+
+.chart-container {
+background: var(--bg-glass);
+border: 1px solid var(--border);
+border-radius: var(--radius);
+padding: 24px;
+margin-top: 24px;
+}
+
+.chart-bar {
+display: flex;
+align-items: center;
+gap: 12px;
+margin-bottom: 12px;
+}
+
+.chart-bar-label {
+width: 100px;
+font-size: 0.8rem;
+color: var(--text-secondary);
+text-align: right;
+flex-shrink: 0;
+}
+
+.chart-bar-track {
+flex: 1;
+height: 24px;
+background: var(--bg-3);
+border-radius: 6px;
+overflow: hidden;
+position: relative;
+}
+
+.chart-bar-fill {
+height: 100%;
+background: linear-gradient(90deg, var(--primary), var(--accent));
+border-radius: 6px;
+width: 0%;
+transition: width 1.5s cubic-bezier(0.4,0,0.2,1);
+}
+
+.chart-bar-value {
+position: absolute;
+right: 8px;
+top: 50%;
+transform: translateY(-50%);
+font-size: 0.75rem;
+color: #fff;
+font-weight: 700;
+}
+
+/* Pricing */
+.pricing-grid {
+display: grid;
+grid-template-columns: repeat(3, 1fr);
+gap: 28px;
+align-items: start;
+}
+
+.pricing-card {
+position: relative;
+text-align: center;
+}
+
+.pricing-card.featured {
+border-color: var(--primary);
+box-shadow: 0 0 60px var(--accent-glow);
+transform: scale(1.05);
+}
+
+.pricing-badge {
+position: absolute;
+top: -12px;
+left: 50%;
+transform: translateX(-50%);
+padding: 6px 20px;
+background: linear-gradient(135deg, var(--primary), var(--accent));
+color: #fff;
+font-size: 0.75rem;
+font-weight: 700;
+border-radius: 50px;
+text-transform: uppercase;
+letter-spacing: 1px;
+}
+
+.pricing-icon {
+width: 64px;
+height: 64px;
+border-radius: 16px;
+background: linear-gradient(135deg, var(--primary), var(--accent));
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 1.5rem;
+margin: 0 auto 20px;
+}
+
+.pricing-card h3 {
+font-size: 1.3rem;
+font-weight: 700;
+color: var(--text-heading);
+margin-bottom: 8px;
+}
+
+.pricing-price {
+font-size: 2.5rem;
+font-weight: 800;
+color: var(--primary);
+margin-bottom: 4px;
+}
+
+.pricing-price span {
+font-size: 1rem;
+font-weight: 400;
+color: var(--text-secondary);
+}
+
+.pricing-desc {
+font-size: 0.85rem;
+color: var(--text-secondary);
+margin-bottom: 24px;
+}
+
+.pricing-features {
+list-style: none;
+text-align: left;
+margin-bottom: 28px;
+}
+
+.pricing-features li {
+display: flex;
+align-items: center;
+gap: 10px;
+padding: 8px 0;
+font-size: 0.85rem;
+color: var(--text-secondary);
+border-bottom: 1px solid var(--border);
+}
+
+.pricing-features li:last-child { border-bottom: none; }
+
+.pricing-features .check { color: #22c55e; font-weight: 700; }
+.pricing-features .cross { color: #ef4444; font-weight: 700; }
+
+.pricing-card .btn { width: 100%; justify-content: center; }
+
+/* FAQ */
+.faq-list {
+max-width: 800px;
+margin: 0 auto;
+}
+
+.faq-item {
+margin-bottom: 16px;
+}
+
+.faq-question {
+width: 100%;
+padding: 20px 24px;
+background: var(--bg-glass);
+border: 1px solid var(--border);
+border-radius: var(--radius-sm);
+color: var(--text-heading);
+font-size: 1rem;
+font-weight: 600;
+cursor: pointer;
+display: flex;
+align-items: center;
+justify-content: space-between;
+gap: 16px;
+text-align: left;
+transition: all var(--transition);
+backdrop-filter: blur(10px);
+font-family: 'Inter', sans-serif;
+}
+
+.faq-question:hover { border-color: var(--primary); }
+
+.faq-question .arrow {
+font-size: 1.2rem;
+transition: transform 0.3s;
+color: var(--primary);
+flex-shrink: 0;
+}
+
+.faq-item.active .faq-question {
+border-color: var(--primary);
+border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+}
+
+.faq-item.active .arrow { transform: rotate(180deg); }
+
+.faq-answer {
+max-height: 0;
+overflow: hidden;
+transition: max-height 0.4s cubic-bezier(0.4,0,0.2,1);
+}
+
+.faq-answer-inner {
+padding: 20px 24px;
+background: var(--bg-glass);
+border: 1px solid var(--border);
+border-top: none;
+border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+color: var(--text-secondary);
+font-size: 0.9rem;
+line-height: 1.8;
+backdrop-filter: blur(10px);
+}
+
+.faq-disclaimer {
+margin-top: 40px;
+padding: 20px 24px;
+background: var(--bg-glass);
+border: 1px solid var(--border);
+border-radius: var(--radius-sm);
+text-align: center;
+font-size: 0.85rem;
+color: var(--text-secondary);
+backdrop-filter: blur(10px);
+}
+
+/* Testimonials */
+.testimonials-stats {
+display: grid;
+grid-template-columns: repeat(4, 1fr);
+gap: 20px;
+margin-bottom: 60px;
+}
+
+.t-stat {
+text-align: center;
+padding: 24px;
+}
+
+.t-stat-value {
+font-size: 2.2rem;
+font-weight: 800;
+color: var(--primary);
+display: block;
+}
+
+.t-stat-label {
+font-size: 0.8rem;
+color: var(--text-secondary);
+margin-top: 4px;
+}
+
+.testimonials-slider {
+position: relative;
+overflow: hidden;
+}
+
+.testimonials-track {
+display: flex;
+transition: transform 0.6s cubic-bezier(0.4,0,0.2,1);
+}
+
+.testimonial-slide {
+min-width: 100%;
+padding: 0 20px;
+}
+
+.testimonial-card {
+max-width: 700px;
+margin: 0 auto;
+text-align: center;
+}
+
+.testimonial-stars {
+color: #f59e0b;
+font-size: 1.2rem;
+margin-bottom: 16px;
+}
+
+.testimonial-text {
+font-size: 1.1rem;
+color: var(--text);
+font-style: italic;
+line-height: 1.8;
+margin-bottom: 24px;
+}
+
+.testimonial-author {
+display: flex;
+align-items: center;
+justify-content: center;
+gap: 16px;
+}
+
+.testimonial-avatar {
+width: 56px;
+height: 56px;
+border-radius: 50%;
+background: linear-gradient(135deg, var(--primary), var(--accent));
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 1.2rem;
+font-weight: 700;
+color: #fff;
+}
+
+.testimonial-info h4 {
+font-size: 1rem;
+font-weight: 700;
+color: var(--text-heading);
+}
+
+.testimonial-info p {
+font-size: 0.8rem;
+color: var(--text-secondary);
+}
+
+.slider-controls {
+display: flex;
+justify-content: center;
+gap: 16px;
+margin-top: 32px;
+}
+
+.slider-btn {
+width: 44px;
+height: 44px;
+border-radius: 50%;
+border: 1px solid var(--border);
+background: var(--bg-glass);
+color: var(--text);
+cursor: pointer;
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 1.2rem;
+transition: all 0.3s;
+backdrop-filter: blur(10px);
+}
+
+.slider-btn:hover {
+border-color: var(--primary);
+color: var(--primary);
+}
+
+.slider-dots {
+display: flex;
+justify-content: center;
+gap: 8px;
+margin-top: 20px;
+}
+
+.slider-dot {
+width: 10px;
+height: 10px;
+border-radius: 50%;
+background: var(--border);
+cursor: pointer;
+transition: all 0.3s;
+}
+
+.slider-dot.active {
+background: var(--primary);
+width: 30px;
+border-radius: 5px;
+}
+
+/* Contact */
+.contact-grid {
+display: grid;
+grid-template-columns: 1fr 1fr;
+gap: 48px;
+}
+
+.contact-form-section h3 {
+font-size: 1.5rem;
+font-weight: 700;
+color: var(--text-heading);
+margin-bottom: 24px;
+}
+
+.form-group {
+margin-bottom: 20px;
+}
+
+.form-label {
+display: block;
+font-size: 0.85rem;
+font-weight: 600;
+color: var(--text-heading);
+margin-bottom: 8px;
+}
+
+.form-input, .form-textarea, .form-select {
+width: 100%;
+padding: 14px 18px;
+background: var(--bg-glass);
+border: 1px solid var(--border);
+border-radius: var(--radius-sm);
+color: var(--text);
+font-size: 0.9rem;
+font-family: 'Inter', sans-serif;
+transition: all 0.3s;
+backdrop-filter: blur(10px);
+}
+
+.form-input:focus, .form-textarea:focus, .form-select:focus {
+outline: none;
+border-color: var(--primary);
+box-shadow: 0 0 20px var(--accent-glow);
+}
+
+.form-textarea { min-height: 140px; resize: vertical; }
+
+.form-select option { background: var(--bg-2); }
+
+.contact-info-section h3 {
+font-size: 1.5rem;
+font-weight: 700;
+color: var(--text-heading);
+margin-bottom: 24px;
+}
+
+.contact-info-item {
+display: flex;
+gap: 16px;
+margin-bottom: 24px;
+align-items: flex-start;
+}
+
+.contact-info-icon {
+width: 48px;
+height: 48px;
+border-radius: 12px;
+background: linear-gradient(135deg, var(--primary), var(--accent));
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 1.2rem;
+flex-shrink: 0;
+}
+
+.contact-info-text h4 {
+font-size: 0.95rem;
+font-weight: 700;
+color: var(--text-heading);
+margin-bottom: 4px;
+}
+
+.contact-info-text p, .contact-info-text a {
+font-size: 0.85rem;
+color: var(--text-secondary);
+text-decoration: none;
+}
+
+.contact-info-text a:hover { color: var(--primary); }
+
+.contact-cta-buttons {
+display: flex;
+gap: 12px;
+margin-top: 32px;
+flex-wrap: wrap;
+}
+
+.whatsapp-btn {
+display: inline-flex;
+align-items: center;
+gap: 10px;
+padding: 14px 28px;
+background: #25d366;
+color: #fff;
+border-radius: 50px;
+font-size: 0.9rem;
+font-weight: 600;
+text-decoration: none;
+transition: all 0.3s;
+}
+
+.whatsapp-btn:hover {
+transform: translateY(-3px);
+box-shadow: 0 8px 30px rgba(37,211,102,0.3);
+}
+
+.email-btn {
+display: inline-flex;
+align-items: center;
+gap: 10px;
+padding: 14px 28px;
+background: var(--bg-glass);
+border: 1px solid var(--border);
+color: var(--text);
+border-radius: 50px;
+font-size: 0.9rem;
+font-weight: 600;
+text-decoration: none;
+transition: all 0.3s;
+backdrop-filter: blur(10px);
+}
+
+.email-btn:hover {
+border-color: var(--primary);
+color: var(--primary);
+transform: translateY(-3px);
+}
+
+/* Footer */
+.footer {
+position: relative;
+z-index: 1;
+padding: 60px 24px 30px;
+border-top: 1px solid var(--border);
+}
+
+.footer-container {
+max-width: 1280px;
+margin: 0 auto;
+display: flex;
+justify-content: space-between;
+align-items: center;
+flex-wrap: wrap;
+gap: 20px;
+}
+
+.footer-logo {
+font-size: 1.2rem;
+font-weight: 800;
+background: linear-gradient(135deg, var(--primary), var(--accent));
+-webkit-background-clip: text;
+-webkit-text-fill-color: transparent;
+background-clip: text;
+}
+
+.footer-text {
+font-size: 0.85rem;
+color: var(--text-secondary);
+}
+
+.footer-links {
+display: flex;
+gap: 24px;
+}
+
+.footer-links a {
+color: var(--text-secondary);
+text-decoration: none;
+font-size: 0.85rem;
+transition: color 0.3s;
+}
+
+.footer-links a:hover { color: var(--primary); }
+
+/* Responsive */
+@media (max-width: 1024px) {
+.hero-container { grid-template-columns: 1fr; text-align: center; }
+.hero-desc { margin: 0 auto 36px; }
+.hero-buttons { justify-content: center; }
+.hero-visual { order: -1; }
+.hero-image-wrapper { max-width: 350px; margin: 0 auto; }
+.hero-stats { justify-content: center; }
+.about-grid { grid-template-columns: 1fr; }
+.services-grid { grid-template-columns: repeat(2, 1fr); }
+.portfolio-grid { grid-template-columns: repeat(2, 1fr); }
+.pricing-grid { grid-template-columns: repeat(2, 1fr); }
+.pricing-card.featured { transform: scale(1); }
+.kpi-grid { grid-template-columns: repeat(2, 1fr); }
+.testimonials-stats { grid-template-columns: repeat(2, 1fr); }
+.contact-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 768px) {
+.nav-links { display: none; }
+.mobile-toggle { display: flex; }
+.services-grid { grid-template-columns: 1fr; }
+.portfolio-grid { grid-template-columns: 1fr; }
+.pricing-grid { grid-template-columns: 1fr; }
+.skills-grid { grid-template-columns: 1fr; }
+.kpi-grid { grid-template-columns: repeat(2, 1fr); }
+.testimonials-stats { grid-template-columns: repeat(2, 1fr); }
+.hero-stats { flex-direction: column; gap: 20px; align-items: center; }
+.cs-meta { flex-direction: column; }
+}
+
+@media (max-width: 480px) {
+.hero-buttons { flex-direction: column; align-items: center; }
+.btn { width: 100%; justify-content: center; }
+.contact-cta-buttons { flex-direction: column; }
+.whatsapp-btn, .email-btn { width: 100%; justify-content: center; }
+}
+
+/* Utility */
+.reveal { opacity: 0; transform: translateY(40px); }
+.reveal-left { opacity: 0; transform: translateX(-40px); }
+.reveal-right { opacity: 0; transform: translateX(40px); }
+.reveal-scale { opacity: 0; transform: scale(0.9); }
+
+/* Form success */
+.form-success {
+display: none;
+padding: 16px;
+background: rgba(34,197,94,0.1);
+border: 1px solid #22c55e;
+border-radius: var(--radius-sm);
+color: #22c55e;
+text-align: center;
+font-weight: 600;
+margin-top: 16px;
+}
+
+.form-success.show { display: block; }
+</style>
+</head>
+<body>
+
+<!-- Preloader -->
+<div id="preloader">
+<div class="preloader-logo">Vertex AI</div>
+<div class="preloader-sub">(Mak)</div>
+<div class="preloader-bar"><div class="preloader-bar-inner"></div></div>
+</div>
+
+<!-- Scroll Progress -->
+<div id="scroll-progress"></div>
+
+<!-- Three.js Canvas -->
+<canvas id="three-canvas"></canvas>
+
+<!-- Navbar -->
+<nav class="navbar" id="navbar">
+<div class="nav-container">
+<a href="#hero" class="nav-logo">Vertex AI <span>(Mak)</span></a>
+<ul class="nav-links">
+<li><a href="#hero">Home</a></li>
+<li><a href="#about">About</a></li>
+<li><a href="#services">Services</a></li>
+<li><a href="#portfolio">Portfolio</a></li>
+<li><a href="#pricing">Pricing</a></li>
+<li><a href="#faq">FAQ</a></li>
+<li><a href="#testimonials">Reviews</a></li>
+<li><a href="#contact">Contact</a></li>
+</ul>
+<div class="nav-actions">
+<button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">🌙</button>
+<div class="mobile-toggle" id="mobileToggle">
+<span></span><span></span><span></span>
+</div>
+</div>
+</div>
+</nav>
+
+<!-- Mobile Menu -->
+<div class="mobile-menu" id="mobileMenu">
+<a href="#hero" class="mobile-link">Home</a>
+<a href="#about" class="mobile-link">About</a>
+<a href="#services" class="mobile-link">Services</a>
+<a href="#portfolio" class="mobile-link">Portfolio</a>
+<a href="#pricing" class="mobile-link">Pricing</a>
+<a href="#faq" class="mobile-link">FAQ</a>
+<a href="#testimonials" class="mobile-link">Reviews</a>
+<a href="#contact" class="mobile-link">Contact</a>
+</div>
+
+<!-- Hero -->
+<section class="hero" id="hero">
+<div class="hero-container">
+<div class="hero-content">
+<div class="hero-badge reveal">
+<span class="dot"></span>
+Available for Projects
+</div>
+<h1 class="hero-title reveal">
+Elevating Brands with<br>
+<span class="gradient-text">AI · Fitness · Video</span>
+</h1>
+<p class="hero-desc reveal">
+Vertex AI (Mak) is a premium agency delivering cutting-edge AI automation, transformative fitness coaching, and cinematic video editing — built for international professionals and businesses ready to scale.
+</p>
+<div class="hero-buttons reveal">
+<a href="#contact" class="btn btn-primary">✉ Contact Me</a>
+<a href="#services" class="btn btn-outline">🚀 Work With Me</a>
+</div>
+<div class="hero-stats reveal">
+<div class="stat-item">
+<span class="stat-number" data-count="150">0</span>
+<span class="stat-label">Projects Done</span>
+</div>
+<div class="stat-item">
+<span class="stat-number" data-count="98">0</span>
+<span class="stat-label">Client Satisfaction %</span>
+</div>
+<div class="stat-item">
+<span class="stat-number" data-count="5">0</span>
+<span class="stat-label">Years Experience</span>
+</div>
+</div>
+</div>
+<div class="hero-visual reveal-right">
+<div class="hero-glow"></div>
+<div class="hero-image-wrapper">
+<img src="image_0.png" alt="Mak - Vertex AI Founder" loading="eager">
+</div>
+</div>
+</div>
+</section>
+
+<!-- About -->
+<section class="section" id="about">
+<div class="section-container">
+<div class="section-header">
+<span class="section-label reveal">About</span>
+<h2 class="section-title reveal">Meet the Founder</h2>
+<p class="section-desc reveal">The mind and drive behind Vertex AI (Mak)</p>
+</div>
+<div class="about-grid">
+<div class="about-image-section reveal-left">
+<div class="about-image">
+<img src="mrt.png" alt="Mak - Fitness">
+</div>
+<div class="about-image-accent"></div>
+</div>
+<div class="about-content reveal-right">
+<h3>Mak / Mehariw Melak Bezie</h3>
+<p>
+I'm a multidisciplinary creative and tech strategist based in Ethiopia, serving clients globally. I founded Vertex AI (Mak) to bridge the gap between technology, wellness, and creative storytelling.
+</p>
+<p>
+With expertise spanning AI automation, fitness coaching, and cinematic video editing, I help businesses and individuals unlock their full potential through smart systems, strategic training, and compelling visual narratives.
+</p>
+<div class="skills-grid">
+<div class="skill-item">
+<div class="skill-icon">🤖</div>
+<span class="skill-name">AI Automation</span>
+</div>
+<div class="skill-item">
+<div class="skill-icon">💪</div>
+<span class="skill-name">Fitness Coaching</span>
+</div>
+<div class="skill-item">
+<div class="skill-icon">🎬</div>
+<span class="skill-name">Video Editing</span>
+</div>
+<div class="skill-item">
+<div class="skill-icon">📊</div>
+<span class="skill-name">Prompt Engineering</span>
+</div>
+</div>
+<div class="experience-bar">
+<div class="exp-item">
+<div class="exp-header">
+<span class="exp-label">AI Automation & Prompt Engineering</span>
+<span class="exp-percent">95%</span>
+</div>
+<div class="exp-track"><div class="exp-fill" data-width="95"></div></div>
+</div>
+<div class="exp-item">
+<div class="exp-header">
+<span class="exp-label">Fitness Coaching & Nutrition</span>
+<span class="exp-percent">90%</span>
+</div>
+<div class="exp-track"><div class="exp-fill" data-width="90"></div></div>
+</div>
+<div class="exp-item">
+<div class="exp-header">
+<span class="exp-label">Video Editing & Motion Graphics</span>
+<span class="exp-percent">88%</span>
+</div>
+<div class="exp-track"><div class="exp-fill" data-width="88"></div></div>
+</div>
+</div>
+<p style="margin-top:20px; font-style:italic; color:var(--primary); font-weight:600;">
+"Empowering businesses and individuals through technology, fitness, and creative excellence."
+</p>
+</div>
+</div>
+</div>
+</section>
+
+<!-- Services -->
+<section class="section" id="services">
+<div class="section-container">
+<div class="section-header">
+<span class="section-label reveal">Services</span>
+<h2 class="section-title reveal">What I Offer</h2>
+<p class="section-desc reveal">Three core pillars of transformation and growth</p>
+</div>
+<div class="services-grid">
+<!-- AI Automation -->
+<div class="glass-card service-card reveal" onclick="openServiceDeep('ai')">
+<img src="https://image.qwenlm.ai/public_source/77e8f7d7-fd2b-4aa4-bb74-e6fff4e3aafb/13124dcd7-392e-403a-9202-a66121eb2410.png" alt="AI Automation" class="service-card-image">
+<div class="service-icon">🤖</div>
+<h3>AI Automation & Prompt Engineering</h3>
+<p>Streamline your business with intelligent automation systems and expertly crafted AI prompts that deliver consistent, high-quality results.</p>
+<ul class="service-features">
+<li><span class="check">✓</span> Workflow Automation Systems</li>
+<li><span class="check">✓</span> Prompt Engineering Frameworks</li>
+<li><span class="check">✓</span> Business Process Design</li>
+</ul>
+<div class="service-tools">
+<span class="tool-tag">ChatGPT</span>
+<span class="tool-tag">Midjourney</span>
+<span class="tool-tag">Zapier</span>
+<span class="tool-tag">Make</span>
+</div>
+<a class="btn btn-primary" style="font-size:0.85rem; padding:10px 24px;">Learn More →</a>
+</div>
+
+<!-- Fitness -->
+<div class="glass-card service-card reveal" onclick="openServiceDeep('fitness')">
+<img src="my-nw_l.png" alt="Fitness Coaching" class="service-card-image">
+<div class="service-icon">💪</div>
+<h3>Fitness Coaching</h3>
+<p>Transform your body and mind with personalized training plans, nutrition guidance, and proven transformation systems.</p>
+<ul class="service-features">
+<li><span class="check">✓</span> Custom Training Plans</li>
+<li><span class="check">✓</span> Nutrition Guidance</li>
+<li><span class="check">✓</span> Transformation Systems</li>
+</ul>
+<div class="service-tools">
+<span class="tool-tag">MyFitnessPal</span>
+<span class="tool-tag">Bodybuilding.com</span>
+<span class="tool-tag">TrainingPeaks</span>
+</div>
+<a class="btn btn-primary" style="font-size:0.85rem; padding:10px 24px;">Learn More →</a>
+</div>
+
+<!-- Video Editing -->
+<div class="glass-card service-card reveal" onclick="openServiceDeep('video')">
+<img src="https://image.qwenlm.ai/public_source/77e8f7d7-fd2b-4aa4-bb74-e6fff4e3aafb/196453c66-2703-45a9-94f4-410ffb67c744.png" alt="Video Editing" class="service-card-image">
+<div class="service-icon">🎬</div>
+<h3>Video Editing</h3>
+<p>Bring your vision to life with professional short-form editing, cinematic productions, and eye-catching motion graphics.</p>
+<ul class="service-features">
+<li><span class="check">✓</span> Short-Form Content</li>
+<li><span class="check">✓</span> Cinematic Editing</li>
+<li><span class="check">✓</span> Motion Graphics</li>
+</ul>
+<div class="service-tools">
+<span class="tool-tag">Premiere Pro</span>
+<span class="tool-tag">After Effects</span>
+<span class="tool-tag">DaVinci</span>
+<span class="tool-tag">CapCut</span>
+</div>
+<a class="btn btn-primary" style="font-size:0.85rem; padding:10px 24px;">Learn More →</a>
+</div>
+</div>
+</div>
+</section>
+
+<!-- Service Deep Dives -->
+<div class="service-deep" id="serviceDeepAI">
+<button class="service-deep-close" onclick="closeServiceDeep('ai')">✕</button>
+<div class="service-deep-content">
+<h2>🤖 AI Automation & Prompt Engineering</h2>
+<p class="deep-desc">I design and implement intelligent automation systems that save businesses time, reduce costs, and scale operations. From prompt engineering to full workflow automation, I help you leverage AI for maximum impact.</p>
+<div class="deep-section">
+<h3>📋 What's Included</h3>
+<p>Custom AI workflow design, prompt template creation, business process automation, integration with existing tools, and ongoing optimization support. Each project is tailored to your specific business needs and goals.</p>
+</div>
+<div class="deep-section">
+<h3>⚙️ Process Steps</h3>
+<div class="process-steps" style="border:none; padding:0; margin-top:0;">
+<div class="step"><div class="step-num">1</div><div class="step-text">Discovery — Understanding your business needs and current workflows</div></div>
+<div class="step"><div class="step-num">2</div><div class="step-text">Strategy — Designing the optimal AI automation approach</div></div>
+<div class="step"><div class="step-num">3</div><div class="step-text">Build — Implementing automation systems and prompt frameworks</div></div>
+<div class="step"><div class="step-num">4</div><div class="step-text">Test — Rigorous testing and refinement of all systems</div></div>
+<div class="step"><div class="step-num">5</div><div class="step-text">Launch & Support — Deployment with ongoing optimization</div></div>
+</div>
+</div>
+<div class="deep-section">
+<h3>🛠️ Tools & Technologies</h3>
+<p>ChatGPT, GPT-4, Claude, Midjourney, DALL-E, Zapier, Make (Integromat), n8n, Python automation scripts, API integrations, and custom prompt engineering frameworks.</p>
+</div>
+<a href="#contact" class="btn btn-primary" onclick="closeServiceDeep('ai')">Get Started →</a>
+</div>
+</div>
+
+<div class="service-deep" id="serviceDeepFitness">
+<button class="service-deep-close" onclick="closeServiceDeep('fitness')">✕</button>
+<div class="service-deep-content">
+<h2>💪 Fitness Coaching</h2>
+<p class="deep-desc">My fitness coaching goes beyond generic workout plans. I provide a holistic transformation system that combines personalized training, nutrition science, and accountability to help you achieve lasting results.</p>
+<div class="deep-section">
+<h3>📋 What's Included</h3>
+<p>Personalized training programs, custom nutrition plans, weekly check-ins, form analysis via video, progressive overload tracking, supplement guidance, and mindset coaching for sustainable lifestyle changes.</p>
+</div>
+<div class="deep-section">
+<h3>⚙️ Process Steps</h3>
+<div class="process-steps" style="border:none; padding:0; margin-top:0;">
+<div class="step"><div class="step-num">1</div><div class="step-text">Assessment — Body composition, fitness level, and goal analysis</div></div>
+<div class="step"><div class="step-num">2</div><div class="step-text">Program Design — Custom training and nutrition plan creation</div></div>
+<div class="step"><div class="step-num">3</div><div class="step-text">Execution — Guided implementation with weekly adjustments</div></div>
+<div class="step"><div class="step-num">4</div><div class="step-text">Progress Tracking — Regular assessments and program updates</div></div>
+<div class="step"><div class="step-num">5</div><div class="step-text">Maintenance — Long-term sustainability and habit building</div></div>
+</div>
+</div>
+<div class="deep-section">
+<h3>🛠️ Tools & Methodologies</h3>
+<p>Progressive overload training, macro-based nutrition, MyFitnessPal tracking, body composition analysis, video form checks, TrainingPeaks programming, and evidence-based supplement protocols.</p>
+</div>
+<a href="#contact" class="btn btn-primary" onclick="closeServiceDeep('fitness')">Start Your Transformation →</a>
+</div>
+</div>
+
+<div class="service-deep" id="serviceDeepVideo">
+<button class="service-deep-close" onclick="closeServiceDeep('video')">✕</button>
+<div class="service-deep-content">
+<h2>🎬 Video Editing</h2>
+<p class="deep-desc">From viral short-form content to cinematic brand stories, I craft visual narratives that captivate audiences and drive engagement. Every edit is designed with purpose, pacing, and impact in mind.</p>
+<div class="deep-section">
+<h3>📋 What's Included</h3>
+<p>Professional video editing, color grading, sound design, motion graphics, thumbnail design, platform-optimized exports (TikTok, Reels, YouTube), and strategic content consulting.</p>
+</div>
+<div class="deep-section">
+<h3>⚙️ Process Steps</h3>
+<div class="process-steps" style="border:none; padding:0; margin-top:0;">
+<div class="step"><div class="step-num">1</div><div class="step-text">Brief — Understanding your vision, audience, and platform goals</div></div>
+<div class="step"><div class="step-num">2</div><div class="step-text">Storyboarding — Planning the narrative flow and key moments</div></div>
+<div class="step"><div class="step-num">3</div><div class="step-text">Editing — Cutting, pacing, and assembling the final narrative</div></div>
+<div class="step"><div class="step-num">4</div><div class="step-text">Polish — Color grading, sound design, and motion graphics</div></div>
+<div class="step"><div class="step-num">5</div><div class="step-text">Delivery — Platform-optimized exports and revision rounds</div></div>
+</div>
+</div>
+<div class="deep-section">
+<h3>🛠️ Tools & Software</h3>
+<p>Adobe Premiere Pro, After Effects, DaVinci Resolve, CapCut Pro, Cinema 4D (basic), Audition for sound design, and advanced color grading workflows.</p>
+</div>
+<a href="#contact" class="btn btn-primary" onclick="closeServiceDeep('video')">Start Your Project →</a>
+</div>
+</div>
+
+<!-- Portfolio -->
+<section class="section" id="portfolio">
+<div class="section-container">
+<div class="section-header">
+<span class="section-label reveal">Portfolio</span>
+<h2 class="section-title reveal">Featured Work</h2>
+<p class="section-desc reveal">Real results across AI, fitness, and video production</p>
+</div>
+<div class="portfolio-filters reveal">
+<button class="filter-btn active" data-filter="all">All Projects</button>
+<button class="filter-btn" data-filter="ai">AI Automation</button>
+<button class="filter-btn" data-filter="fitness">Fitness</button>
+<button class="filter-btn" data-filter="video">Video Editing</button>
+</div>
+<div class="portfolio-grid" id="portfolioGrid">
+<div class="glass-card portfolio-card reveal" data-category="ai" onclick="openCaseStudy(0)">
+<img src="https://image.qwenlm.ai/public_source/77e8f7d7-fd2b-4aa4-bb74-e6fff4e3aafb/13124dcd7-392e-403a-9202-a66121eb2410.png" alt="AI Automation" class="portfolio-card-image">
+<div class="card-category">AI Automation</div>
+<h4>E-Commerce AI Workflow System</h4>
+<p>Automated customer support and inventory management for a growing e-commerce brand.</p>
+</div>
+<div class="glass-card portfolio-card reveal" data-category="fitness" onclick="openCaseStudy(1)">
+<img src="https://image.qwenlm.ai/public_source/77e8f7d7-fd2b-4aa4-bb74-e6fff4e3aafb/1f220af9e-7efd-469f-b158-d6c68312f14e.png" alt="Fitness" class="portfolio-card-image">
+<div class="card-category">Fitness Coaching</div>
+<h4>90-Day Body Transformation</h4>
+<p>Complete physique overhaul for a busy professional with customized training and nutrition.</p>
+</div>
+<div class="glass-card portfolio-card reveal" data-category="video" onclick="openCaseStudy(2)">
+<img src="https://image.qwenlm.ai/public_source/77e8f7d7-fd2b-4aa4-bb74-e6fff4e3aafb/196453c66-2703-45a9-94f4-410ffb67c744.png" alt="Video Editing" class="portfolio-card-image">
+<div class="card-category">Video Editing</div>
+<h4>Cinematic Brand Documentary</h4>
+<p>A visually stunning brand story that increased engagement by 340% across platforms.</p>
+</div>
+<div class="glass-card portfolio-card reveal" data-category="ai" onclick="openCaseStudy(3)">
+<img src="https://image.qwenlm.ai/public_source/77e8f7d7-fd2b-4aa4-bb74-e6fff4e3aafb/13124dcd7-392e-403a-9202-a66121eb2410.png" alt="AI Prompt Engineering" class="portfolio-card-image">
+<div class="card-category">AI Prompt Engineering</div>
+<h4>AI Content Generation Pipeline</h4>
+<p>Built a prompt framework generating 500+ pieces of marketing content monthly.</p>
+</div>
+<div class="glass-card portfolio-card reveal" data-category="fitness" onclick="openCaseStudy(4)">
+<img src="https://image.qwenlm.ai/public_source/77e8f7d7-fd2b-4aa4-bb74-e6fff4e3aafb/1f220af9e-7efd-469f-b158-d6c68312f14e.png" alt="Fitness" class="portfolio-card-image">
+<div class="card-category">Fitness Coaching</div>
+<h4>Athletic Performance Program</h4>
+<p>Sports-specific training program for competitive athletes focusing on strength and conditioning.</p>
+</div>
+<div class="glass-card portfolio-card reveal" data-category="video" onclick="openCaseStudy(5)">
+<img src="https://image.qwenlm.ai/public_source/77e8f7d7-fd2b-4aa4-bb74-e6fff4e3aafb/196453c66-2703-45a9-94f4-410ffb67c744.png" alt="Video Editing" class="portfolio-card-image">
+<div class="card-category">Video Editing</div>
+<h4>Social Media Content Series</h4>
+<p>30-day viral content series generating 2M+ views across TikTok and Instagram Reels.</p>
+</div>
+</div>
+</div>
+</section>
+
+<!-- Case Study Modal -->
+<div class="case-study" id="caseStudyModal">
+<div class="case-study-header">
+<img id="csImage" src="" alt="Case Study">
+</div>
+<button class="service-deep-close case-study-close" onclick="closeCaseStudy()">✕</button>
+<div class="case-study-body">
+<h1 id="csTitle"></h1>
+<div class="cs-meta" id="csMeta"></div>
+<div class="kpi-grid" id="csKPI"></div>
+<div class="cs-section" id="csProblem"></div>
+<div class="cs-section" id="csSolution"></div>
+<div class="cs-section" id="csProcess"></div>
+<div class="cs-section" id="csResult"></div>
+<div class="chart-container" id="csChart"></div>
+<div class="cs-section" id="csTools"></div>
+<div style="margin-top:40px;">
+<a href="#contact" class="btn btn-primary" onclick="closeCaseStudy()">Start Similar Project →</a>
+</div>
+</div>
+</div>
+
+<!-- Pricing -->
+<section class="section" id="pricing">
+<div class="section-container">
+<div class="section-header">
+<span class="section-label reveal">Pricing</span>
+<h2 class="section-title reveal">Investment Plans</h2>
+<p class="section-desc reveal">Transparent pricing for every budget and goal</p>
+</div>
+<div class="pricing-grid">
+<div class="glass-card pricing-card reveal">
+<div class="pricing-icon">⚡</div>
+<h3>Basic</h3>
+<div class="pricing-price">$199<span>/project</span></div>
+<p class="pricing-desc">Perfect for small projects and getting started</p>
+<ul class="pricing-features">
+<li><span class="check">✓</span> Single deliverable</li>
+<li><span class="check">✓</span> 2 revision rounds</li>
+<li><span class="check">✓</span> Email support</li>
+<li><span class="check">✓</span> 5-day delivery</li>
+<li><span class="cross">✕</span> Priority support</li>
+<li><span class="cross">✕</span> Strategy consultation</li>
+</ul>
+<a href="#contact" class="btn btn-outline">Get Started</a>
+</div>
+<div class="glass-card pricing-card featured reveal">
+<div class="pricing-badge">Most Popular</div>
+<div class="pricing-icon">🚀</div>
+<h3>Pro</h3>
+<div class="pricing-price">$499<span>/project</span></div>
+<p class="pricing-desc">Ideal for growing businesses and serious results</p>
+<ul class="pricing-features">
+<li><span class="check">✓</span> Multiple deliverables</li>
+<li><span class="check">✓</span> 5 revision rounds</li>
+<li><span class="check">✓</span> Priority support</li>
+<li><span class="check">✓</span> 3-day delivery</li>
+<li><span class="check">✓</span> Strategy consultation</li>
+<li><span class="cross">✕</span> Ongoing retainer</li>
+</ul>
+<a href="#contact" class="btn btn-primary">Get Started</a>
+</div>
+<div class="glass-card pricing-card reveal">
+<div class="pricing-icon">💎</div>
+<h3>Premium</h3>
+<div class="pricing-price">$999<span>/project</span></div>
+<p class="pricing-desc">Full-service package for maximum impact</p>
+<ul class="pricing-features">
+<li><span class="check">✓</span> Unlimited deliverables</li>
+<li><span class="check">✓</span> Unlimited revisions</li>
+<li><span class="check">✓</span> 24/7 dedicated support</li>
+<li><span class="check">✓</span> 24-hour rush delivery</li>
+<li><span class="check">✓</span> Full strategy & consulting</li>
+<li><span class="check">✓</span> 30-day retainer included</li>
+</ul>
+<a href="#contact" class="btn btn-outline">Get Started</a>
+</div>
+</div>
+</div>
+</section>
+
+<!-- FAQ -->
+<section class="section" id="faq">
+<div class="section-container">
+<div class="section-header">
+<span class="section-label reveal">FAQ</span>
+<h2 class="section-title reveal">Frequently Asked Questions</h2>
+<p class="section-desc reveal">Everything you need to know before we work together</p>
+</div>
+<div class="faq-list">
+<div class="faq-item reveal">
+<button class="faq-question">
+What services does Vertex AI (Mak) offer?
+<span class="arrow">▼</span>
+</button>
+<div class="faq-answer">
+<div class="faq-answer-inner">
+I offer three core services: AI Automation & Prompt Engineering (building intelligent workflows, automating business processes, and crafting effective AI prompts), Fitness Coaching (personalized training programs, nutrition plans, and transformation systems), and Video Editing (short-form content, cinematic editing, motion graphics, and social media optimization). Each service is tailored to your specific needs and goals.
+</div>
+</div>
+</div>
+<div class="faq-item reveal">
+<button class="faq-question">
+How transparent is your pricing?
+<span class="arrow">▼</span>
+</button>
+<div class="faq-answer">
+<div class="faq-answer-inner">
+Completely transparent. My pricing structure is clearly outlined in the Pricing section with three tiers: Basic ($199), Pro ($499), and Premium ($999). There are no hidden fees. Custom projects outside these tiers will receive a detailed quote before any work begins. I believe in honest, upfront communication about costs.
+</div>
+</div>
+</div>
+<div class="faq-item reveal">
+<button class="faq-question">
+What results can I expect from your services?
+<span class="arrow">▼</span>
+</button>
+<div class="faq-answer">
+<div class="faq-answer-inner">
+Results vary based on your starting point, commitment level, and specific goals. For AI automation, clients typically see 40-70% time savings on automated tasks. Fitness clients following the program consistently see visible transformations within 8-12 weeks. Video editing clients experience 2-5x increases in engagement metrics. I provide realistic expectations during our initial consultation.
+</div>
+</div>
+</div>
+<div class="faq-item reveal">
+<button class="faq-question">
+How does the workflow process work?
+<span class="arrow">▼</span>
+</button>
+<div class="faq-answer">
+<div class="faq-answer-inner">
+My workflow follows a proven 5-step process: 1) Discovery call to understand your needs, 2) Strategy and proposal with timeline and pricing, 3) Execution with regular updates, 4) Review and revision rounds, 5) Final delivery with support. Throughout the process, you'll have direct communication access via email or WhatsApp. I prioritize clear communication and on-time delivery.
+</div>
+</div>
+</div>
+<div class="faq-item reveal">
+<button class="faq-question">
+Do you work with international clients?
+<span class="arrow">▼</span>
+</button>
+<div class="faq-answer">
+<div class="faq-answer-inner">
+Absolutely! I work with clients worldwide. All communication and project management is handled remotely through digital tools. Time zone differences are accommodated with flexible scheduling. Payment is accepted through various international methods. My clients span across North America, Europe, Middle East, and Africa.
+</div>
+</div>
+</div>
+<div class="faq-item reveal">
+<button class="faq-question">
+What's your revision policy?
+<span class="arrow">▼</span>
+</button>
+<div class="faq-answer">
+<div class="faq-answer-inner">
+Revision rounds depend on your pricing tier: Basic includes 2 rounds, Pro includes 5 rounds, and Premium includes unlimited revisions. Each revision round allows you to request changes within the original scope. Major scope changes may require additional pricing discussion. I aim to get it right the first time through thorough initial briefings.
+</div>
+</div>
+</div>
+</div>
+<div class="faq-disclaimer reveal">
+⚠️ <strong>Disclaimer:</strong> Results vary based on individual effort, market conditions, and starting points. Past performance does not guarantee future results. All metrics shared in case studies are based on actual client projects with permission. Fitness results require consistent adherence to prescribed programs.
+</div>
+</div>
+</section>
+
+<!-- Testimonials -->
+<section class="section" id="testimonials">
+<div class="section-container">
+<div class="section-header">
+<span class="section-label reveal">Testimonials</span>
+<h2 class="section-title reveal">Client Reviews</h2>
+<p class="section-desc reveal">What people say about working with Vertex AI (Mak)</p>
+</div>
+<div class="testimonials-stats reveal">
+<div class="glass-card t-stat">
+<span class="t-stat-value" data-count="150">0</span>
+<span class="t-stat-label">Projects Completed</span>
+</div>
+<div class="glass-card t-stat">
+<span class="t-stat-value" data-count="98">0</span>
+<span class="t-stat-label">Client Satisfaction %</span>
+</div>
+<div class="glass-card t-stat">
+<span class="t-stat-value" data-count="35">0</span>
+<span class="t-stat-label">Countries Served</span>
+</div>
+<div class="glass-card t-stat">
+<span class="t-stat-value" data-count="5">0</span>
+<span class="t-stat-label">Years Experience</span>
+</div>
+</div>
+<div class="testimonials-slider reveal">
+<div class="testimonials-track" id="testimonialsTrack">
+<div class="testimonial-slide">
+<div class="testimonial-card">
+<div class="testimonial-stars">★★★★★</div>
+<p class="testimonial-text">"Mak completely transformed our e-commerce operations with AI automation. We reduced customer response time by 80% and cut operational costs significantly. His understanding of both AI and business workflows is exceptional."</p>
+<div class="testimonial-author">
+<div class="testimonial-avatar">SA</div>
+<div class="testimonial-info">
+<h4>Sarah A.</h4>
+<p>CEO, TechRetail Solutions — USA</p>
+</div>
+</div>
+</div>
+</div>
+<div class="testimonial-slide">
+<div class="testimonial-card">
+<div class="testimonial-stars">★★★★★</div>
+<p class="testimonial-text">"The fitness coaching program was a game-changer. I lost 18kg in 4 months and gained confidence I never thought possible. Mak's approach is scientific yet personal — he truly cares about your progress."</p>
+<div class="testimonial-author">
+<div class="testimonial-avatar">DK</div>
+<div class="testimonial-info">
+<h4>Daniel K.</h4>
+<p>Software Engineer — Germany</p>
+</div>
+</div>
+</div>
+</div>
+<div class="testimonial-slide">
+<div class="testimonial-card">
+<div class="testimonial-stars">★★★★★</div>
+<p class="testimonial-text">"Our brand documentary went viral thanks to Mak's cinematic editing. Views increased by 340% and we gained 50K new followers. The quality of his work rivals top-tier production houses at a fraction of the cost."</p>
+<div class="testimonial-author">
+<div class="testimonial-avatar">LM</div>
+<div class="testimonial-info">
+<h4>Layla M.</h4>
+<p>Marketing Director, LuxeBrand — UAE</p>
+</div>
+</div>
+</div>
+</div>
+<div class="testimonial-slide">
+<div class="testimonial-card">
+<div class="testimonial-stars">★★★★★</div>
+<p class="testimonial-text">"The AI content pipeline Mak built generates 500+ pieces of content monthly with zero manual effort. Our content marketing ROI increased by 400%. He's not just an editor — he's a strategic partner."</p>
+<div class="testimonial-author">
+<div class="testimonial-avatar">JR</div>
+<div class="testimonial-info">
+<h4>James R.</h4>
+<p>Founder, ContentScale AI — UK</p>
+</div>
+</div>
+</div>
+</div>
+<div class="testimonial-slide">
+<div class="testimonial-card">
+<div class="testimonial-stars">★★★★★</div>
+<p class="testimonial-text">"Working with Mak on our social media content was incredible. 30 videos, 2M+ views, and our engagement rate tripled. He understands exactly what works on each platform and delivers consistently."</p>
+<div class="testimonial-author">
+<div class="testimonial-avatar">AH</div>
+<div class="testimonial-info">
+<h4>Amir H.</h4>
+<p>Content Creator — Saudi Arabia</p>
+</div>
+</div>
+</div>
+</div>
+<div class="testimonial-slide">
+<div class="testimonial-card">
+<div class="testimonial-stars">★★★★★</div>
+<p class="testimonial-text">"I hired Mak for a complete fitness and nutrition overhaul. The results were beyond my expectations — I gained 8kg of lean muscle in 6 months while maintaining a demanding work schedule. His programs are incredibly well-designed."</p>
+<div class="testimonial-author">
+<div class="testimonial-avatar">TC</div>
+<div class="testimonial-info">
+<h4>Thomas C.</h4>
+<p>Executive, Finance Corp — Switzerland</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="slider-controls">
+<button class="slider-btn" id="prevSlide">◀</button>
+<button class="slider-btn" id="nextSlide">▶</button>
+</div>
+<div class="slider-dots" id="sliderDots"></div>
+</div>
+</div>
+</section>
+
+<!-- Contact -->
+<section class="section" id="contact">
+<div class="section-container">
+<div class="section-header">
+<span class="section-label reveal">Contact</span>
+<h2 class="section-title reveal">Let's Work Together</h2>
+<p class="section-desc reveal">Ready to transform your business, body, or brand? Get in touch.</p>
+</div>
+<div class="contact-grid">
+<div class="contact-form-section reveal-left">
+<h3>Send a Message</h3>
+<form id="contactForm" onsubmit="handleSubmit(event)">
+<div class="form-group">
+<label class="form-label">Full Name *</label>
+<input type="text" class="form-input" placeholder="Your full name" required>
+</div>
+<div class="form-group">
+<label class="form-label">Email Address *</label>
+<input type="email" class="form-input" placeholder="your@email.com" required>
+</div>
+<div class="form-group">
+<label class="form-label">Subject</label>
+<input type="text" class="form-input" placeholder="How can I help you?">
+</div>
+<div class="form-group">
+<label class="form-label">Service Interested In</label>
+<select class="form-select">
+<option value="">Select a service...</option>
+<option value="ai">AI Automation & Prompt Engineering</option>
+<option value="fitness">Fitness Coaching</option>
+<option value="video">Video Editing</option>
+<option value="multiple">Multiple Services</option>
+<option value="other">Other / Not Sure</option>
+</select>
+</div>
+<div class="form-group">
+<label class="form-label">Message *</label>
+<textarea class="form-textarea" placeholder="Tell me about your project or goals..." required></textarea>
+</div>
+<button type="submit" class="btn btn-primary" style="width:100%; justify-content:center;">Send Message ✉</button>
+<div class="form-success" id="formSuccess">✓ Message sent successfully! I'll get back to you within 24 hours.</div>
+</form>
+</div>
+<div class="contact-info-section reveal-right">
+<h3>Get in Touch</h3>
+<p style="color:var(--text-secondary); margin-bottom:32px; font-size:0.95rem;">
+Prefer direct contact? Reach out through any of the channels below. I typically respond within a few hours during business days.
+</p>
+<div class="contact-info-item">
+<div class="contact-info-icon">📧</div>
+<div class="contact-info-text">
+<h4>Email</h4>
+<a href="mailto:makb79800@gmail.com">makb79800@gmail.com</a>
+</div>
+</div>
+<div class="contact-info-item">
+<div class="contact-info-icon">📱</div>
+<div class="contact-info-text">
+<h4>WhatsApp</h4>
+<a href="https://wa.me/251949639929?text=Hello%2C%20I%27m%20interested%20in%20your%20service" target="_blank">+251 949 639 929</a>
+</div>
+</div>
+<div class="contact-info-item">
+<div class="contact-info-icon">🌍</div>
+<div class="contact-info-text">
+<h4>Location</h4>
+<p>Ethiopia — Serving clients worldwide</p>
+</div>
+</div>
+<div class="contact-info-item">
+<div class="contact-info-icon">⏰</div>
+<div class="contact-info-text">
+<h4>Availability</h4>
+<p>Mon - Sat: 8:00 AM - 10:00 PM (EAT)</p>
+</div>
+</div>
+<div class="contact-cta-buttons">
+<a href="https://wa.me/251949639929?text=Hello%2C%20I%27m%20interested%20in%20your%20service" target="_blank" class="whatsapp-btn">💬 WhatsApp Me</a>
+<a href="mailto:makb79800@gmail.com" class="email-btn">✉ Send Email</a>
+</div>
+</div>
+</div>
+</div>
+</section>
+
+<!-- Footer -->
+<footer class="footer">
+<div class="footer-container">
+<div class="footer-logo">Vertex AI (Mak)</div>
+<p class="footer-text">© 2024 Vertex AI (Mak). All rights reserved.</p>
+<div class="footer-links">
+<a href="#about">About</a>
+<a href="#services">Services</a>
+<a href="#portfolio">Portfolio</a>
+<a href="#contact">Contact</a>
+</div>
+</div>
+</footer>
+
+<script>
+// ===== PRELOADER =====
+(function() {
+const preloader = document.getElementById('preloader');
+const logo = preloader.querySelector('.preloader-logo');
+const sub = preloader.querySelector('.preloader-sub');
+const bar = preloader.querySelector('.preloader-bar');
+const barInner = preloader.querySelector('.preloader-bar-inner');
+
+const tl = gsap.timeline();
+tl.to(logo, { opacity: 1, duration: 0.8, ease: "power3.out" })
+.to(sub, { opacity: 1, duration: 0.6, ease: "power3.out" }, "-=0.3")
+.to(bar, { opacity: 1, duration: 0.4 }, "-=0.2")
+.to(barInner, { width: "100%", duration: 1.5, ease: "power2.inOut" }, "-=0.2")
+.to(preloader, { y: "-100%", duration: 0.8, ease: "power4.inOut", delay: 0.3, onComplete: () => {
+preloader.style.display = 'none';
+initAnimations();
+}});
+})();
+
+// ===== THREE.JS BACKGROUND =====
+(function() {
+const canvas = document.getElementById('three-canvas');
+const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+camera.position.z = 30;
+
+const particleCount = 200;
+const geo = new THREE.BufferGeometry();
+const pos = new Float32Array(particleCount * 3);
+const sizes = new Float32Array(particleCount);
+
+for (let i = 0; i < particleCount; i++) {
+pos[i * 3] = (Math.random() - 0.5) * 60;
+pos[i * 3 + 1] = (Math.random() - 0.5) * 60;
+pos[i * 3 + 2] = (Math.random() - 0.5) * 40;
+sizes[i] = Math.random() * 2 + 0.5;
+}
+
+geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+geo.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
+
+const mat = new THREE.PointsMaterial({
+color: 0x0ea5e9,
+size: 0.15,
+transparent: true,
+opacity: 0.6,
+sizeAttenuation: true
+});
+
+const particles = new THREE.Points(geo, mat);
+scene.add(particles);
+
+// Floating geometric shapes
+const shapes = [];
+const shapeGeos = [
+new THREE.OctahedronGeometry(0.5, 0),
+new THREE.TetrahedronGeometry(0.4, 0),
+new THREE.IcosahedronGeometry(0.3, 0)
+];
+
+for (let i = 0; i < 15; i++) {
+const g = shapeGeos[Math.floor(Math.random() * shapeGeos.length)];
+const m = new THREE.MeshBasicMaterial({
+color: Math.random() > 0.5 ? 0x0ea5e9 : 0x6366f1,
+wireframe: true,
+transparent: true,
+opacity: 0.15
+});
+const mesh = new THREE.Mesh(g, m);
+mesh.position.set(
+(Math.random() - 0.5) * 40,
+(Math.random() - 0.5) * 40,
+(Math.random() - 0.5) * 20
+);
+mesh.userData = {
+rotSpeed: { x: (Math.random() - 0.5) * 0.01, y: (Math.random() - 0.5) * 0.01 },
+floatSpeed: Math.random() * 0.005 + 0.002,
+floatOffset: Math.random() * Math.PI * 2
+};
+scene.add(mesh);
+shapes.push(mesh);
+}
+
+let mouseX = 0, mouseY = 0;
+document.addEventListener('mousemove', (e) => {
+mouseX = (e.clientX / window.innerWidth - 0.5) * 2;
+mouseY = (e.clientY / window.innerHeight - 0.5) * 2;
+});
+
+function animateThree() {
+requestAnimationFrame(animateThree);
+const time = Date.now() * 0.001;
+
+particles.rotation.y += 0.0003;
+particles.rotation.x += 0.0001;
+
+camera.position.x += (mouseX * 3 - camera.position.x) * 0.02;
+camera.position.y += (-mouseY * 3 - camera.position.y) * 0.02;
+camera.lookAt(scene.position);
+
+shapes.forEach(s => {
+s.rotation.x += s.userData.rotSpeed.x;
+s.rotation.y += s.userData.rotSpeed.y;
+s.position.y += Math.sin(time * s.userData.floatSpeed * 100 + s.userData.floatOffset) * 0.01;
+});
+
+renderer.render(scene, camera);
+}
+animateThree();
+
+window.addEventListener('resize', () => {
+camera.aspect = window.innerWidth / window.innerHeight;
+camera.updateProjectionMatrix();
+renderer.setSize(window.innerWidth, window.innerHeight);
+});
+})();
+
+// ===== NAVBAR =====
+(function() {
+const navbar = document.getElementById('navbar');
+let lastScroll = 0;
+let ticking = false;
+
+window.addEventListener('scroll', () => {
+if (!ticking) {
+requestAnimationFrame(() => {
+const currentScroll = window.pageYOffset;
+const scrollProgress = document.getElementById('scroll-progress');
+const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+const scrolled = (currentScroll / docHeight) * 100;
+scrollProgress.style.width = scrolled + '%';
+
+if (currentScroll > 100) {
+navbar.classList.add('scrolled');
+} else {
+navbar.classList.remove('scrolled');
+}
+
+if (currentScroll > lastScroll && currentScroll > 300) {
+navbar.classList.add('hidden');
+} else {
+navbar.classList.remove('hidden');
+}
+lastScroll = currentScroll;
+ticking = false;
+});
+ticking = true;
+}
+});
+
+// Mobile menu
+const mobileToggle = document.getElementById('mobileToggle');
+const mobileMenu = document.getElementById('mobileMenu');
+
+mobileToggle.addEventListener('click', () => {
+mobileToggle.classList.toggle('active');
+mobileMenu.classList.toggle('active');
+document.body.style.overflow = mobileMenu.classList.contains('active') ? 'hidden' : '';
+});
+
+document.querySelectorAll('.mobile-link').forEach(link => {
+link.addEventListener('click', () => {
+mobileToggle.classList.remove('active');
+mobileMenu.classList.remove('active');
+document.body.style.overflow = '';
+});
+});
+})();
+
+// ===== THEME TOGGLE =====
+(function() {
+const toggle = document.getElementById('themeToggle');
+const html = document.documentElement;
+
+const savedTheme = localStorage.getItem('theme') || 'dark';
+html.setAttribute('data-theme', savedTheme);
+toggle.textContent = savedTheme === 'dark' ? '☀️' : '🌙';
+
+toggle.addEventListener('click', () => {
+const current = html.getAttribute('data-theme');
+const next = current === 'dark' ? 'light' : 'dark';
+html.setAttribute('data-theme', next);
+toggle.textContent = next === 'dark' ? '☀️' : '🌙';
+localStorage.setItem('theme', next);
+});
+})();
+
+// ===== SMOOTH SCROLL =====
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+anchor.addEventListener('click', function(e) {
+e.preventDefault();
+const target = document.querySelector(this.getAttribute('href'));
+if (target) {
+gsap.to(window, { duration: 1, scrollTo: { y: target, offsetY: 80 }, ease: "power3.inOut" });
+}
+});
+});
+
+// ===== GSAP ANIMATIONS =====
+function initAnimations() {
+gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
+
+// Reveal animations
+gsap.utils.toArray('.reveal').forEach(el => {
+gsap.to(el, {
+opacity: 1,
+y: 0,
+duration: 0.8,
+ease: "power3.out",
+scrollTrigger: {
+trigger: el,
+start: "top 85%",
+toggleActions: "play none none none"
+}
+});
+});
+
+gsap.utils.toArray('.reveal-left').forEach(el => {
+gsap.to(el, {
+opacity: 1,
+x: 0,
+duration: 0.8,
+ease: "power3.out",
+scrollTrigger: {
+trigger: el,
+start: "top 85%",
+toggleActions: "play none none none"
+}
+});
+});
+
+gsap.utils.toArray('.reveal-right').forEach(el => {
+gsap.to(el, {
+opacity: 1,
+x: 0,
+duration: 0.8,
+ease: "power3.out",
+scrollTrigger: {
+trigger: el,
+start: "top 85%",
+toggleActions: "play none none none"
+}
+});
+});
+
+gsap.utils.toArray('.reveal-scale').forEach(el => {
+gsap.to(el, {
+opacity: 1,
+scale: 1,
+duration: 0.8,
+ease: "power3.out",
+scrollTrigger: {
+trigger: el,
+start: "top 85%",
+toggleActions: "play none none none"
+}
+});
+});
+
+// Counter animation
+function animateCounters() {
+document.querySelectorAll('[data-count]').forEach(counter => {
+const target = parseInt(counter.getAttribute('data-count'));
+const suffix = counter.textContent.includes('%') ? '%' : '+';
+gsap.to(counter, {
+duration: 2,
+ease: "power2.out",
+onUpdate: function() {
+const val = Math.round(this.progress() * target);
+counter.textContent = val + (target > 10 ? '+' : target > 5 ? '%' : '+');
+}
+});
+});
+}
+
+ScrollTrigger.create({
+trigger: ".hero-stats",
+start: "top 80%",
+onEnter: () => animateCounters(),
+once: true
+});
+
+// Experience bars
+gsap.utils.toArray('.exp-fill').forEach(bar => {
+const width = bar.getAttribute('data-width');
+gsap.to(bar, {
+width: width + '%',
+duration: 1.5,
+ease: "power3.out",
+scrollTrigger: {
+trigger: bar,
+start: "top 85%",
+toggleActions: "play none none none"
+}
+});
+});
+
+// Portfolio filter
+const filterBtns = document.querySelectorAll('.filter-btn');
+const portfolioCards = document.querySelectorAll('.portfolio-card');
+
+filterBtns.forEach(btn => {
+btn.addEventListener('click', () => {
+filterBtns.forEach(b => b.classList.remove('active'));
+btn.classList.add('active');
+const filter = btn.getAttribute('data-filter');
+
+portfolioCards.forEach(card => {
+const category = card.getAttribute('data-category');
+if (filter === 'all' || category === filter) {
+gsap.to(card, { opacity: 1, scale: 1, duration: 0.4, display: 'block' });
+} else {
+gsap.to(card, { opacity: 0, scale: 0.8, duration: 0.4, onComplete: () => { card.style.display = 'none'; }});
+}
+});
+});
+});
+
+// 3D Tilt Cards
+document.querySelectorAll('.glass-card').forEach(card => {
+card.addEventListener('mousemove', (e) => {
+const rect = card.getBoundingClientRect();
+const x = e.clientX - rect.left;
+const y = e.clientY - rect.top;
+const centerX = rect.width / 2;
+const centerY = rect.height / 2;
+const rotateX = (y - centerY) / 20;
+const rotateY = (centerX - x) / 20;
+card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-5px)`;
+});
+card.addEventListener('mouseleave', () => {
+card.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) translateY(0)';
+});
+});
+}
+
+// ===== SERVICE DEEP DIVES =====
+function openServiceDeep(service) {
+const modal = document.getElementById('serviceDeep' + service.charAt(0).toUpperCase() + service.slice(1));
+modal.classList.add('active');
+document.body.style.overflow = 'hidden';
+}
+
+function closeServiceDeep(service) {
+const modal = document.getElementById('serviceDeep' + service.charAt(0).toUpperCase() + service.slice(1));
+modal.classList.remove('active');
+document.body.style.overflow = '';
+}
+
+// ===== CASE STUDY DATA =====
+const caseStudies = [
+{
+title: "E-Commerce AI Workflow System",
+category: "AI Automation",
+image: "https://image.qwenlm.ai/public_source/77e8f7d7-fd2b-4aa4-bb74-e6fff4e3aafb/13124dcd7-392e-403a-9202-a66121eb2410.png",
+client: "TechRetail Solutions",
+duration: "6 weeks",
+budget: "$4,500",
+kpi: [
+{ value: "80%", label: "Faster Response Time" },
+{ value: "45%", label: "Cost Reduction" },
+{ value: "3x", label: "Customer Satisfaction" },
+{ value: "200+", label: "Hours Saved/Month" }
+],
+problem: "TechRetail was struggling with manual customer support, inventory management, and order processing. Response times averaged 4-6 hours, leading to customer churn and lost revenue. The team was overwhelmed with repetitive tasks that could be automated.",
+solution: "I designed a comprehensive AI automation system integrating ChatGPT-powered customer support, automated inventory tracking, and smart order processing workflows. The system handles 70% of customer inquiries automatically and provides real-time inventory alerts.",
+process: "1. Discovery & Audit: Analyzed existing workflows and identified 12 automation opportunities. 2. System Design: Architected the AI automation pipeline using Make.com and custom APIs. 3. Implementation: Built and tested all automation workflows over 4 weeks. 4. Training & Handoff: Trained the team on system management and optimization.",
+result: "Customer response time dropped from 4-6 hours to under 15 minutes. Operational costs decreased by 45%. The team reclaimed 200+ hours monthly for strategic work. Customer satisfaction scores increased from 3.2 to 4.7 out of 5.",
+tools: ["ChatGPT API", "Make.com", "Shopify API", "Zapier", "Custom Python Scripts", "Slack Integration"],
+chartData: [
+{ label: "Response Time", value: 85, unit: "mins → mins" },
+{ label: "Cost Savings", value: 45, unit: "%" },
+{ label: "Auto Resolution", value: 70, unit: "%" },
+{ label: "Satisfaction", value: 88, unit: "%" }
+]
+},
+{
+title: "90-Day Body Transformation",
+category: "Fitness Coaching",
+image: "https://image.qwenlm.ai/public_source/77e8f7d7-fd2b-4aa4-bb74-e6fff4e3aafb/1f220af9e-7efd-469f-b158-d6c68312f14e.png",
+client: "Daniel K.",
+duration: "12 weeks",
+budget: "$1,200",
+kpi: [
+{ value: "18kg", label: "Weight Lost" },
+{ value: "12%", label: "Body Fat Reduced" },
+{ value: "40%", label: "Strength Increased" },
+{ value: "95%", label: "Program Adherence" }
+],
+problem: "Daniel, a software engineer, was dealing with excess weight, low energy, and poor fitness habits after years of sedentary work. He needed a structured program that fit his demanding schedule while delivering visible, sustainable results.",
+solution: "A comprehensive 90-day transformation program combining progressive resistance training, macro-based nutrition, weekly video check-ins, and mindset coaching. The program was designed for 4-5 training days per week with flexible meal planning.",
+process: "1. Assessment: Full body composition analysis and movement screening. 2. Program Design: Custom 12-week periodized training plan with 3 phases. 3. Nutrition: Macro-calculated meal plans with flexible food choices. 4. Monitoring: Weekly progress photos, weight tracking, and program adjustments.",
+result: "Daniel lost 18kg and reduced body fat by 12%. His strength increased by 40% on major lifts. He reported dramatically improved energy levels, better sleep, and enhanced work productivity. The transformation was sustainable with maintained results 6 months post-program.",
+tools: ["TrainingPeaks", "MyFitnessPal", "Body Composition Scanner", "Video Analysis", "Progressive Overload Tracker"],
+chartData: [
+{ label: "Weight Loss", value: 90, unit: "%" },
+{ label: "Fat Reduction", value: 85, unit: "%" },
+{ label: "Strength Gain", value: 40, unit: "%" },
+{ label: "Energy Level", value: 92, unit: "%" }
+]
+},
+{
+title: "Cinematic Brand Documentary",
+category: "Video Editing",
+image: "https://image.qwenlm.ai/public_source/77e8f7d7-fd2b-4aa4-bb74-e6fff4e3aafb/196453c66-2703-45a9-94f4-410ffb67c744.png",
+client: "LuxeBrand",
+duration: "3 weeks",
+budget: "$3,200",
+kpi: [
+{ value: "340%", label: "Engagement Increase" },
+{ value: "50K", label: "New Followers" },
+{ value: "2.1M", label: "Total Views" },
+{ value: "8.5%", label: "Engagement Rate" }
+],
+problem: "LuxeBrand needed a compelling brand story video to relaunch their identity. Previous content was generic and failed to connect emotionally with their target audience. They needed cinematic quality that conveyed luxury and authenticity.",
+solution: "A 4-minute cinematic documentary-style brand film featuring the founder's story, behind-the-scenes craftsmanship footage, and emotional storytelling. The video was optimized for multiple platforms with different cut lengths.",
+process: "1. Creative Brief: Deep-dive into brand values, target audience, and key messaging. 2. Pre-production: Storyboard development and shot planning. 3. Editing: 3-week post-production with color grading, sound design, and motion graphics. 4. Platform Optimization: Multiple cuts for YouTube, Instagram, and TikTok.",
+result: "The documentary generated 2.1M views across platforms within the first month. Engagement rate jumped from 2.5% to 8.5%. The brand gained 50K new followers and saw a 25% increase in website traffic. The video became their highest-performing content piece.",
+tools: ["Adobe Premiere Pro", "After Effects", "DaVinci Resolve", "Cinema 4D", "Audition"],
+chartData: [
+{ label: "View Count", value: 95, unit: "↑340%" },
+{ label: "Engagement", value: 88, unit: "↑8.5%" },
+{ label: "Followers", value: 75, unit: "↑50K" },
+{ label: "Web Traffic", value: 65, unit: "↑25%" }
+]
+},
+{
+title: "AI Content Generation Pipeline",
+category: "AI Automation",
+image: "https://image.qwenlm.ai/public_source/77e8f7d7-fd2b-4aa4-bb74-e6fff4e3aafb/13124dcd7-392e-403a-9202-a66121eb2410.png",
+client: "ContentScale AI",
+duration: "4 weeks",
+budget: "$2,800",
+kpi: [
+{ value: "500+", label: "Content Pieces/Month" },
+{ value: "400%", label: "ROI Increase" },
+{ value: "90%", label: "Time Saved" },
+{ value: "3x", label: "Content Output" }
+],
+problem: "ContentScale AI needed to scale their content marketing from 50 pieces monthly to 500+ without hiring additional writers. Quality was dropping with increased volume, and the existing process was entirely manual.",
+solution: "Built a sophisticated AI content pipeline using custom prompt engineering frameworks, quality control checkpoints, and automated distribution workflows. The system generates blog posts, social media content, email newsletters, and ad copy with human-like quality.",
+process: "1. Audit & Strategy: Analyzed existing content performance and identified patterns. 2. Prompt Framework: Developed 25+ specialized prompt templates for different content types. 3. Pipeline Build: Created automated workflow connecting AI generation to editing and publishing. 4. Quality System: Implemented multi-stage review process ensuring brand voice consistency.",
+result: "Content output increased from 50 to 500+ pieces monthly. ROI on content marketing increased by 400%. Writing time reduced by 90% while maintaining quality scores above 8.5/10. The team shifted focus from creation to strategy and optimization.",
+tools: ["GPT-4", "Claude", "Make.com", "WordPress API", "Buffer", "Custom Prompt Library"],
+chartData: [
+{ label: "Content Volume", value: 95, unit: "50→500+" },
+{ label: "ROI Increase", value: 85, unit: "↑400%" },
+{ label: "Time Saved", value: 90, unit: "%" },
+{ label: "Quality Score", value: 88, unit: "8.5/10" }
+]
+},
+{
+title: "Athletic Performance Program",
+category: "Fitness Coaching",
+image: "https://image.qwenlm.ai/public_source/77e8f7d7-fd2b-4aa4-bb74-e6fff4e3aafb/1f220af9e-7efd-469f-b158-d6c68312f14e.png",
+client: "Amir H.",
+duration: "16 weeks",
+budget: "$1,800",
+kpi: [
+{ value: "25%", label: "Strength Increase" },
+{ value: "15%", label: "Speed Improvement" },
+{ value: "8%", label: "Body Fat Reduced" },
+{ value: "100%", label: "Injury Prevention" }
+],
+problem: "Amir, a competitive athlete, was hitting performance plateaus and dealing with minor recurring injuries. He needed a periodized training program that enhanced his athletic performance while addressing mobility and injury prevention.",
+solution: "A 16-week periodized athletic performance program focusing on strength, power, speed, and injury resilience. The program included sport-specific drills, mobility work, and nutritional periodization aligned with training phases.",
+process: "1. Performance Assessment: Movement screening, strength testing, and mobility evaluation. 2. Program Design: 4-phase periodized plan (Foundation, Strength, Power, Peak). 3. Implementation: Guided training with weekly video form checks and adjustments. 4. Competition Prep: Tapering strategy and peak performance optimization.",
+result: "Amir increased his max strength by 25%, improved sprint times by 15%, and reduced body fat by 8% while gaining lean muscle. Zero injuries during the program. He achieved personal bests in competition and reported feeling the best physically in his career.",
+tools: ["TrainingPeaks", "Velocity Based Training", "Movement Screen", "Heart Rate Zones", "Nutrition Periodization"],
+chartData: [
+{ label: "Strength Gain", value: 85, unit: "↑25%" },
+{ label: "Speed Improvement", value: 75, unit: "↑15%" },
+{ label: "Body Comp", value: 70, unit: "↓8%" },
+{ label: "Performance", value: 95, unit: "Personal Best" }
+]
+},
+{
+title: "Social Media Content Series",
+category: "Video Editing",
+image: "https://image.qwenlm.ai/public_source/77e8f7d7-fd2b-4aa4-bb74-e6fff4e3aafb/196453c66-2703-45a9-94f4-410ffb67c744.png",
+client: "Amir H. (Creator)",
+duration: "30 days",
+budget: "$2,400",
+kpi: [
+{ value: "2M+", label: "Total Views" },
+{ value: "150K", label: "New Followers" },
+{ value: "12%", label: "Engagement Rate" },
+{ value: "30", label: "Videos Produced" }
+],
+problem: "Amir, a content creator, was struggling to maintain consistent posting and viral-quality content. His engagement was stagnant at 2-3% and follower growth had plateaued. He needed a systematic approach to short-form content creation.",
+solution: "Produced and edited 30 short-form videos over 30 days, each optimized for TikTok and Instagram Reels algorithms. Content included trending formats, educational pieces, and entertainment clips with strategic hook patterns and retention optimization.",
+process: "1. Content Strategy: Analyzed viral trends and audience preferences. 2. Production Plan: Created content calendar with 30 unique video concepts. 3. Editing: Fast-paced, hook-driven editing with trending audio and visual effects. 4. Analytics: Daily performance monitoring and content strategy adjustments.",
+result: "The 30-video series generated over 2M total views. Amir gained 150K new followers across platforms. Engagement rate jumped to 12%. Three videos hit 1M+ views individually. The consistent posting schedule established a loyal audience base that continues to grow.",
+tools: ["Premiere Pro", "After Effects", "CapCut Pro", "TikTok Analytics", "Trending Audio Database"],
+chartData: [
+{ label: "Total Views", value: 95, unit: "2M+" },
+{ label: "Follower Growth", value: 85, unit: "↑150K" },
+{ label: "Engagement Rate", value: 90, unit: "↑12%" },
+{ label: "Viral Videos", value: 70, unit: "3x 1M+" }
+]
+}
+];
+
+// ===== CASE STUDY MODAL =====
+function openCaseStudy(index) {
+const cs = caseStudies[index];
+const modal = document.getElementById('caseStudyModal');
+document.getElementById('csImage').src = cs.image;
+document.getElementById('csTitle').textContent = cs.title;
+
+document.getElementById('csMeta').innerHTML = `
+<div class="cs-meta-item"><span class="label">Service:</span> ${cs.category}</div>
+<div class="cs-meta-item"><span class="label">Client:</span> ${cs.client}</div>
+<div class="cs-meta-item"><span class="label">Duration:</span> ${cs.duration}</div>
+<div class="cs-meta-item"><span class="label">Budget:</span> ${cs.budget}</div>
+`;
+
+document.getElementById('csKPI').innerHTML = cs.kpi.map(k => `
+<div class="glass-card kpi-card">
+<span class="kpi-value">${k.value}</span>
+<span class="kpi-label">${k.label}</span>
+</div>
+`).join('');
+
+document.getElementById('csProblem').innerHTML = `<h2>🔍 The Problem</h2><p>${cs.problem}</p>`;
+document.getElementById('csSolution').innerHTML = `<h2>💡 The Solution</h2><p>${cs.solution}</p>`;
+document.getElementById('csProcess').innerHTML = `<h2>⚙️ The Process</h2><p>${cs.process}</p>`;
+document.getElementById('csResult').innerHTML = `<h2>📊 The Results</h2><p>${cs.result}</p>`;
+
+document.getElementById('csChart').innerHTML = `<h3 style="font-size:1.1rem;font-weight:700;color:var(--text-heading);margin-bottom:16px;">Key Performance Metrics</h3>` +
+cs.chartData.map(d => `
+<div class="chart-bar">
+<span class="chart-bar-label">${d.label}</span>
+<div class="chart-bar-track">
+<div class="chart-bar-fill" data-width="${d.value}"></div>
+<span class="chart-bar-value">${d.value}${d.unit ? '' : '%'}</span>
+</div>
+</div>
+`).join('');
+
+document.getElementById('csTools').innerHTML = `<h2>🛠️ Tools Used</h2><div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;">${cs.tools.map(t => `<span class="tool-tag">${t}</span>`).join('')}</div>`;
+
+modal.classList.add('active');
+document.body.style.overflow = 'hidden';
+modal.scrollTop = 0;
+
+// Animate chart bars
+setTimeout(() => {
+document.querySelectorAll('.chart-bar-fill').forEach(bar => {
+const w = bar.getAttribute('data-width');
+bar.style.width = w + '%';
+});
+}, 300);
+}
+
+function closeCaseStudy() {
+document.getElementById('caseStudyModal').classList.remove('active');
+document.body.style.overflow = '';
+}
+
+// ===== TESTIMONIALS SLIDER =====
+(function() {
+const track = document.getElementById('testimonialsTrack');
+const slides = track.querySelectorAll('.testimonial-slide');
+const dotsContainer = document.getElementById('sliderDots');
+let currentSlide = 0;
+let autoSlideInterval;
+
+// Create dots
+slides.forEach((_, i) => {
+const dot = document.createElement('div');
+dot.classList.add('slider-dot');
+if (i === 0) dot.classList.add('active');
+dot.addEventListener('click', () => goToSlide(i));
+dotsContainer.appendChild(dot);
+});
+
+function goToSlide(index) {
+currentSlide = index;
+track.style.transform = `translateX(-${currentSlide * 100}%)`;
+document.querySelectorAll('.slider-dot').forEach((d, i) => {
+d.classList.toggle('active', i === currentSlide);
+});
+}
+
+document.getElementById('prevSlide').addEventListener('click', () => {
+goToSlide(currentSlide === 0 ? slides.length - 1 : currentSlide - 1);
+resetAutoSlide();
+});
+
+document.getElementById('nextSlide').addEventListener('click', () => {
+goToSlide(currentSlide === slides.length - 1 ? 0 : currentSlide + 1);
+resetAutoSlide();
+});
+
+function startAutoSlide() {
+autoSlideInterval = setInterval(() => {
+goToSlide(currentSlide === slides.length - 1 ? 0 : currentSlide + 1);
+}, 5000);
+}
+
+function resetAutoSlide() {
+clearInterval(autoSlideInterval);
+startAutoSlide();
+}
+
+startAutoSlide();
+})();
+
+// ===== FAQ ACCORDION =====
+document.querySelectorAll('.faq-question').forEach(btn => {
+btn.addEventListener('click', () => {
+const item = btn.parentElement;
+const answer = item.querySelector('.faq-answer');
+const isActive = item.classList.contains('active');
+
+document.querySelectorAll('.faq-item').forEach(i => {
+i.classList.remove('active');
+i.querySelector('.faq-answer').style.maxHeight = '0';
+});
+
+if (!isActive) {
+item.classList.add('active');
+answer.style.maxHeight = answer.scrollHeight + 'px';
+}
+});
+});
+
+// ===== CONTACT FORM =====
+function handleSubmit(e) {
+e.preventDefault();
+const success = document.getElementById('formSuccess');
+success.classList.add('show');
+e.target.reset();
+setTimeout(() => success.classList.remove('show'), 5000);
+}
+</script>
+</body>
+</html>
+
